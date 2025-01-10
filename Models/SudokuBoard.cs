@@ -4,13 +4,16 @@
 public sealed class SudokuBoard
 {
     private const int BoardSize = 9;
-
     private readonly char[,] _cells;
+
+    // Moved from SudokuSolver:
+    private bool[,] _rowUsed;
+    private bool[,] _colUsed;
+    private bool[,] _boxUsed;
 
     public SudokuBoard()
     {
         _cells = new char[BoardSize, BoardSize];
-        // Initialize all cells to '0' to represent an empty cell.
         for (int row = 0; row < BoardSize; row++)
         {
             for (int col = 0; col < BoardSize; col++)
@@ -18,6 +21,8 @@ public sealed class SudokuBoard
                 _cells[row, col] = '0';
             }
         }
+
+        InitializeUsedCells();
     }
 
     public char this[int row, int col]
@@ -26,9 +31,6 @@ public sealed class SudokuBoard
         set => _cells[row, col] = value;
     }
 
-    /// <summary>
-    /// True if no cell is '0'
-    /// </summary>
     public bool IsComplete()
     {
         for (int row = 0; row < BoardSize; row++)
@@ -42,5 +44,67 @@ public sealed class SudokuBoard
             }
         }
         return true;
+    }
+
+    /// <summary>
+    /// Initializes row, column, and box usage based on the current board.
+    /// </summary>
+    public void InitializeUsedCells()
+    {
+        _rowUsed = new bool[BoardSize, BoardSize + 1];
+        _colUsed = new bool[BoardSize, BoardSize + 1];
+        _boxUsed = new bool[BoardSize, BoardSize + 1];
+
+        for (int row = 0; row < BoardSize; row++)
+        {
+            for (int col = 0; col < BoardSize; col++)
+            {
+                char cell = _cells[row, col];
+                if (cell != '0')
+                {
+                    int digit = cell - '0';
+                    PlaceDigit(row, col, digit);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Places a digit on the board and updates the tracking arrays.
+    /// </summary>
+    public void PlaceDigit(int row, int col, int digit)
+    {
+        _cells[row, col] = (char)(digit + '0');
+        _rowUsed[row, digit] = true;
+        _colUsed[col, digit] = true;
+        _boxUsed[GetBoxIndex(row, col), digit] = true;
+    }
+
+    /// <summary>
+    /// Removes a digit from the board and updates the tracking arrays.
+    /// </summary>
+    public void RemoveDigit(int row, int col, int digit)
+    {
+        _cells[row, col] = '0';
+        _rowUsed[row, digit] = false;
+        _colUsed[col, digit] = false;
+        _boxUsed[GetBoxIndex(row, col), digit] = false;
+    }
+
+    /// <summary>
+    /// Checks if a digit can safely be placed at [row, col].
+    /// </summary>
+    public bool IsSafeCell(int row, int col, int digit)
+    {
+        int boxIndex = GetBoxIndex(row, col);
+        return !_rowUsed[row, digit]
+               && !_colUsed[col, digit]
+               && !_boxUsed[boxIndex, digit];
+    }
+
+    private static int GetBoxIndex(int row, int col)
+    {
+        const int BoxSize = 3;
+        return (row / BoxSize) * BoxSize + (col / BoxSize);
     }
 }
