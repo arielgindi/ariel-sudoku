@@ -1,16 +1,35 @@
-﻿internal class SudokuSolver
+﻿using System.Diagnostics;
+
+internal class SudokuSolver
 {
     private SudokuBoard board;
     private const int BoardSize = 9;
+    private const int TimeLimitMilliseconds = 1000;
 
     public void Solve(SudokuBoard sudokuBoard)
     {
         board = sudokuBoard;
-        Backtrack();
+
+        Stopwatch stopwatch = Stopwatch.StartNew();
+
+        bool solved = Backtrack(stopwatch);
+        if (!solved)
+        {
+            throw new InvalidOperationException("Puzzle is unsolvable or incomplete.");
+        }
     }
 
-    private bool Backtrack()
+    /// <summary>
+    /// Backtracking that checks elapsed time to avoid exceeding 1 second.
+    /// </summary>
+    private bool Backtrack(Stopwatch stopwatch)
     {
+        // If we exceed the time limit, throw an exception
+        if (stopwatch.ElapsedMilliseconds > TimeLimitMilliseconds)
+        {
+            throw new TimeoutException("Puzzle took more than 1 second to solve.");
+        }
+
         for (int row = 0; row < BoardSize; row++)
         {
             for (int col = 0; col < BoardSize; col++)
@@ -25,7 +44,7 @@
                         {
                             board.PlaceDigit(row, col, digit);
 
-                            if (Backtrack())
+                            if (Backtrack(stopwatch))
                             {
                                 return true;
                             }
