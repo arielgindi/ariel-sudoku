@@ -31,20 +31,8 @@ public sealed class SudokuBoard
         set => _cells[row, col] = value;
     }
 
-    public bool IsComplete()
-    {
-        for (int row = 0; row < BoardSize; row++)
-        {
-            for (int col = 0; col < BoardSize; col++)
-            {
-                if (_cells[row, col] == '0')
-                {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
+    public bool IsComplete() => _cells.Cast<char>().All(cell => cell != '0');
+
 
     /// <summary>
     /// Initializes row, column, and box usage based on the current board.
@@ -71,13 +59,34 @@ public sealed class SudokuBoard
 
     /// <summary>
     /// Places a digit on the board and updates the tracking arrays.
+    /// Throws an error if that digit is already used in the row/col/box.
     /// </summary>
     public void PlaceDigit(int row, int col, int digit)
     {
+        int boxIndex = GetBoxIndex(row, col);
+
+        if (_rowUsed[row, digit] || _colUsed[col, digit] || _boxUsed[boxIndex, digit])
+        {
+            List<string> conflicts = new List<string>
+            {
+                _rowUsed[row, digit] ? $"row {row}" : "",
+                _colUsed[col, digit] ? $"col {col}" : "",
+                _boxUsed[boxIndex, digit] ? $"box {boxIndex}" : ""
+            }
+            .Where(conflict => conflict.Length > 0)
+            .ToList();
+
+            throw new InvalidOperationException(
+                $"Cannot place digit {digit} at row={row}, col={col}: " +
+                $"digit {digit} is already used in {string.Join(", ", conflicts)}."
+            );
+        }
+
+        // Otherwise, no conflicts; place the digit
         _cells[row, col] = (char)(digit + '0');
         _rowUsed[row, digit] = true;
         _colUsed[col, digit] = true;
-        _boxUsed[GetBoxIndex(row, col), digit] = true;
+        _boxUsed[boxIndex, digit] = true;
     }
 
     /// <summary>
