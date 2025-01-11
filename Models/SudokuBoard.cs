@@ -11,15 +11,20 @@ public sealed class SudokuBoard
     private bool[,] _colUsed;
     private bool[,] _boxUsed;
 
-    public SudokuBoard()
+    public SudokuBoard(string input)
     {
+        if (input == null)
+            throw new ArgumentNullException(nameof(input));
+
+        if (input.Length != 81)
+            throw new ArgumentException("Board must be exactly 81 characters.", nameof(input));
+
         _cells = new char[BoardSize, BoardSize];
-        for (int row = 0; row < BoardSize; row++)
+        for (int i = 0; i < 81; i++)
         {
-            for (int col = 0; col < BoardSize; col++)
-            {
-                _cells[row, col] = '0';
-            }
+            int row = i / 9;
+            int col = i % 9;
+            _cells[row, col] = input[i];
         }
 
         InitializeUsedCells();
@@ -31,20 +36,7 @@ public sealed class SudokuBoard
         set => _cells[row, col] = value;
     }
 
-    public bool IsComplete()
-    {
-        for (int row = 0; row < BoardSize; row++)
-        {
-            for (int col = 0; col < BoardSize; col++)
-            {
-                if (_cells[row, col] == '0')
-                {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
+    public bool IsComplete() => _cells.Cast<char>().All(cell => cell != '0');
 
     /// <summary>
     /// Initializes row, column, and box usage based on the current board.
@@ -71,13 +63,36 @@ public sealed class SudokuBoard
 
     /// <summary>
     /// Places a digit on the board and updates the tracking arrays.
+    /// Throws an error if that digit is already used in the row/col/box.
     /// </summary>
     public void PlaceDigit(int row, int col, int digit)
     {
+        int boxIndex = GetBoxIndex(row, col);
+
+
+        // if its invalid throw an error
+        if (_rowUsed[row, digit] || _colUsed[col, digit] || _boxUsed[boxIndex, digit])
+        {
+            List<string> conflicts = new List<string>
+            {
+                _rowUsed[row, digit] ? $"row" : "",
+                _colUsed[col, digit] ? $"col" : "",
+                _boxUsed[boxIndex, digit] ? $"box" : ""
+            }
+            .Where(conflict => conflict.Length > 0)
+            .ToList();
+
+            throw new InvalidOperationException(
+                $"Cannot place digit {digit} at cell ({row},{col}), " +
+                $"digit {digit} is already used in the same {string.Join(" and ", conflicts)}."
+            );
+        }
+
+        // Otherwise, no conflicts; place the digit
         _cells[row, col] = (char)(digit + '0');
         _rowUsed[row, digit] = true;
         _colUsed[col, digit] = true;
-        _boxUsed[GetBoxIndex(row, col), digit] = true;
+        _boxUsed[boxIndex, digit] = true;
     }
 
     /// <summary>
@@ -106,5 +121,21 @@ public sealed class SudokuBoard
     {
         const int BoxSize = 3;
         return (row / BoxSize) * BoxSize + (col / BoxSize);
+    }
+
+
+    /// <summary>
+    /// Print the board as an 81 characters string.
+    /// </summary>
+    public override string ToString()
+    {
+        char[] chars = new char[81];
+        for (int i = 0; i < 81; i++)
+        {
+            int row = i / 9;
+            int col = i % 9;
+            chars[i] = _cells[row, col];
+        }
+        return new string(chars);
     }
 }
