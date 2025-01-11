@@ -18,10 +18,10 @@
     public static string SolveSudoku(string puzzleString)
     {
         // 1. Parse into a SudokuBoard.
-        SudokuBoard board = BoardParser.Parse(puzzleString);
+        SudokuBoard board = new(puzzleString);
 
         // 2. Solve the board.
-        SudokuSolver solver = new SudokuSolver();
+        SudokuSolver solver = new();
         solver.Solve(board);
 
         // 3. Verify the board is complete (solved).
@@ -30,8 +30,8 @@
             throw new InvalidOperationException("Puzzle is unsolvable or incomplete.");
         }
 
-        // 4. Convert the solved board back to an 81-character string.
-        string solvedPuzzle = BoardParser.ConvertBoardToString(board);
+        // 4. Convert the solved board back to string.
+        string solvedPuzzle = board.ToString();
         return solvedPuzzle;
     }
 }
