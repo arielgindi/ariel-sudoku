@@ -11,15 +11,20 @@ public sealed class SudokuBoard
     private bool[,] _colUsed;
     private bool[,] _boxUsed;
 
-    public SudokuBoard()
+    public SudokuBoard(string input)
     {
+        if (input == null)
+            throw new ArgumentNullException(nameof(input));
+
+        if (input.Length != 81)
+            throw new ArgumentException("Board must be exactly 81 characters.", nameof(input));
+
         _cells = new char[BoardSize, BoardSize];
-        for (int row = 0; row < BoardSize; row++)
+        for (int i = 0; i < 81; i++)
         {
-            for (int col = 0; col < BoardSize; col++)
-            {
-                _cells[row, col] = '0';
-            }
+            int row = i / 9;
+            int col = i % 9;
+            _cells[row, col] = input[i];
         }
 
         InitializeUsedCells();
@@ -32,7 +37,6 @@ public sealed class SudokuBoard
     }
 
     public bool IsComplete() => _cells.Cast<char>().All(cell => cell != '0');
-
 
     /// <summary>
     /// Initializes row, column, and box usage based on the current board.
@@ -65,20 +69,22 @@ public sealed class SudokuBoard
     {
         int boxIndex = GetBoxIndex(row, col);
 
+
+        // if its invalid throw an error
         if (_rowUsed[row, digit] || _colUsed[col, digit] || _boxUsed[boxIndex, digit])
         {
             List<string> conflicts = new List<string>
             {
-                _rowUsed[row, digit] ? $"row {row}" : "",
-                _colUsed[col, digit] ? $"col {col}" : "",
-                _boxUsed[boxIndex, digit] ? $"box {boxIndex}" : ""
+                _rowUsed[row, digit] ? $"row" : "",
+                _colUsed[col, digit] ? $"col" : "",
+                _boxUsed[boxIndex, digit] ? $"box" : ""
             }
             .Where(conflict => conflict.Length > 0)
             .ToList();
 
             throw new InvalidOperationException(
-                $"Cannot place digit {digit} at row={row}, col={col}: " +
-                $"digit {digit} is already used in {string.Join(", ", conflicts)}."
+                $"Cannot place digit {digit} at cell ({row},{col}), " +
+                $"digit {digit} is already used in the same {string.Join(" and ", conflicts)}."
             );
         }
 
