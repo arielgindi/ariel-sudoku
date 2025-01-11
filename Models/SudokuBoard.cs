@@ -122,4 +122,20 @@ public sealed class SudokuBoard
         const int BoxSize = 3;
         return (row / BoxSize) * BoxSize + (col / BoxSize);
     }
+
+
+    /// <summary>
+    /// Print the board as an 81 characters string.
+    /// </summary>
+    public override string ToString()
+    {
+        char[] chars = new char[81];
+        for (int i = 0; i < 81; i++)
+        {
+            int row = i / 9;
+            int col = i % 9;
+            chars[i] = _cells[row, col];
+        }
+        return new string(chars);
+    }
 }
