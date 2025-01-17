@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace ArielSudoku
 {
@@ -22,7 +21,7 @@ namespace ArielSudoku
             Console.WriteLine($"{CYAN}====================================={RESET}");
             Console.WriteLine($"{CYAN}{BOLD}          Gindi Calculator{RESET}");
             Console.WriteLine($"{CYAN}====================================={RESET}");
-            Console.WriteLine("Enter exactly 81 characters to input a Sudoku puzzle.");
+            Console.WriteLine($"Enter exactly {CellCount} characters to input a Sudoku puzzle.");
             Console.WriteLine("Type 'exit' to quit.");
             Console.WriteLine();
         }
@@ -47,9 +46,9 @@ namespace ArielSudoku
 
                 try
                 {
-                    if (userInput.Length != 81)
+                    if (userInput.Length != CellCount)
                     {
-                        throw new FormatException($"Input must be 81 characters, but it is {userInput.Length}.");
+                        throw new FormatException($"Input must be {CellCount} characters, but it is {userInput.Length}.");
                     }
 
                     Stopwatch stopwatch = Stopwatch.StartNew();
