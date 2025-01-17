@@ -3,7 +3,6 @@
 internal class SudokuSolver
 {
     private SudokuBoard board;
-    private const int BoardSize = 9;
     private const int TimeLimitMilliseconds = 1000;
 
     public void Solve(SudokuBoard sudokuBoard)

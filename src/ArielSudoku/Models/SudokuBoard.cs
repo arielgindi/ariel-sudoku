@@ -3,7 +3,6 @@
 /// </summary>
 public sealed class SudokuBoard
 {
-    private const int BoardSize = 9;
     private readonly char[,] _cells;
 
     // Moved from SudokuSolver:
@@ -16,14 +15,14 @@ public sealed class SudokuBoard
         if (input == null)
             throw new ArgumentNullException(nameof(input));
 
-        if (input.Length != 81)
-            throw new ArgumentException("Board must be exactly 81 characters.", nameof(input));
+        if (input.Length != CellCount)
+            throw new ArgumentException($"Board must be exactly {CellCount} characters.", nameof(input));
 
         _cells = new char[BoardSize, BoardSize];
-        for (int i = 0; i < 81; i++)
+        for (int i = 0; i < CellCount; i++)
         {
-            int row = i / 9;
-            int col = i % 9;
+            int row = i / BoardSize;
+            int col = i % BoardSize;
             _cells[row, col] = input[i];
         }
 
@@ -119,8 +118,7 @@ public sealed class SudokuBoard
 
     private static int GetBoxIndex(int row, int col)
     {
-        const int BoxSize = 3;
-        return (row / BoxSize) * BoxSize + (col / BoxSize);
+        return (row / BoxLen) * BoxLen + (col / BoxLen);
     }
 
 
@@ -129,11 +127,11 @@ public sealed class SudokuBoard
     /// </summary>
     public override string ToString()
     {
-        char[] chars = new char[81];
-        for (int i = 0; i < 81; i++)
+        char[] chars = new char[CellCount];
+        for (int i = 0; i < CellCount; i++)
         {
-            int row = i / 9;
-            int col = i % 9;
+            int row = i / BoardSize;
+            int col = i % BoardSize;
             chars[i] = _cells[row, col];
         }
         return new string(chars);
