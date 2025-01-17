@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35431.28
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArielSudoku", "ArielSudoku.csproj", "{9D5B54A9-A5C5-42A6-9D76-2785248D589A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArielSudoku", "src\ArielSudoku\ArielSudoku.csproj", "{C42C9122-DD60-4F4B-90D2-4350B862DC40}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArielSudoku.Tests", "tests\ArielSudoku.Tests\ArielSudoku.Tests.csproj", "{74133C9F-F77A-45C4-8EE1-16E34F4B9593}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9D5B54A9-A5C5-42A6-9D76-2785248D589A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9D5B54A9-A5C5-42A6-9D76-2785248D589A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9D5B54A9-A5C5-42A6-9D76-2785248D589A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9D5B54A9-A5C5-42A6-9D76-2785248D589A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C42C9122-DD60-4F4B-90D2-4350B862DC40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C42C9122-DD60-4F4B-90D2-4350B862DC40}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C42C9122-DD60-4F4B-90D2-4350B862DC40}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C42C9122-DD60-4F4B-90D2-4350B862DC40}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74133C9F-F77A-45C4-8EE1-16E34F4B9593}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74133C9F-F77A-45C4-8EE1-16E34F4B9593}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74133C9F-F77A-45C4-8EE1-16E34F4B9593}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74133C9F-F77A-45C4-8EE1-16E34F4B9593}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
