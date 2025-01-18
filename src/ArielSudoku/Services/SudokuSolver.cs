@@ -1,5 +1,6 @@
-﻿using System.Diagnostics;
-
+﻿using ArielSudoku.Models;
+using System.Diagnostics;
+using static ArielSudoku.SudokuHelpers;
 internal class SudokuSolver
 {
     private SudokuBoard board;
@@ -25,7 +26,7 @@ internal class SudokuSolver
 
         for (int cellNumber = 0; cellNumber < CellCount; cellNumber++)
         {
-            (int row, int col, _) = SudokuBoard.GetCellCoordinates(cellNumber);
+            (int row, int col, _) = GetCellCoordinates(cellNumber);
             if (board[row, col] == '0')
             {
                 emptyCells.Add(cellNumber);
@@ -50,7 +51,7 @@ internal class SudokuSolver
             return true;
         }
 
-        (int row, int col, _) = SudokuBoard.GetCellCoordinates(emptyCells[index]);
+        (int row, int col, _) = GetCellCoordinates(emptyCells[index]);
 
         for (int digit = 1; digit <= BoardSize; digit++)
         {

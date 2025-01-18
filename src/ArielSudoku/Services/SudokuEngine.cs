@@ -1,4 +1,6 @@
-﻿public static class SudokuEngine
+﻿using ArielSudoku.Models;
+
+public static class SudokuEngine
 {
     /// <summary>
     /// Solves a Sudoku puzzle in one call.

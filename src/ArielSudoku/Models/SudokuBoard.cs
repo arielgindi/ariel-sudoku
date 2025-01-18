@@ -1,11 +1,14 @@
-﻿/// <summary>
+﻿namespace ArielSudoku.Models;
+
+using static ArielSudoku.SudokuHelpers;
+using static ArielSudoku.Common.Constants;
+/// <summary>
 /// A 9x9 Sudoku board stored as an array of chars.
 /// </summary>
 public sealed class SudokuBoard
 {
     private readonly char[,] _cells;
 
-    // Moved from SudokuSolver:
     private bool[,] _rowUsed;
     private bool[,] _colUsed;
     private bool[,] _boxUsed;
@@ -32,12 +35,12 @@ public sealed class SudokuBoard
             }
 
             // Ensure c is between '0' - '9'
-            if (ch < '0' || ch > '9')
+            if (ch < '0' || ch > (char)('0' + BoardSize))
             {
                 throw new FormatException(
-                    $"Invalid given board! " + 
+                    $"Invalid given board! " +
                     $"The character '{ch}' in cell ({row}, {col}). " +
-                    $"Only '0'-'9' or '.' are allowed."
+                    $"Only '0'-'${BoardSize}' or '.' are allowed."
                 );
             }
 
@@ -106,7 +109,7 @@ public sealed class SudokuBoard
             );
         }
 
-        // Otherwise, no conflicts; place the digit
+        // Otherwise, no conflicts place the digit
         _cells[row, col] = (char)(digit + '0');
         _rowUsed[row, digit] = true;
         _colUsed[col, digit] = true;
@@ -135,22 +138,6 @@ public sealed class SudokuBoard
                && !_boxUsed[boxIndex, digit];
     }
 
-    /// <summary>
-    /// Given a cell index, returns the (row, col, box) coordinates
-    /// </summary>
-    public static (int row, int col, int box) GetCellCoordinates(int cellNumber, bool includeBox = false)
-    {
-        int row = cellNumber / BoardSize;
-        int col= cellNumber % BoardSize;
-        int box = includeBox ? (row / BoxLen) * BoxLen + (col / BoxLen);
-        return (row, col, box);
-    }
-
-
-    private static int GetBoxIndex(int row, int col)
-    {
-        return (row / BoxLen) * BoxLen + (col / BoxLen);
-    }
 
 
     /// <summary>
