@@ -19,12 +19,31 @@ public sealed class SudokuBoard
             throw new ArgumentException($"Board must be exactly {CellCount} characters.", nameof(input));
 
         _cells = new char[BoardSize, BoardSize];
-        for (int i = 0; i < CellCount; i++)
+        for (int cellNumber = 0; cellNumber < CellCount; cellNumber++)
         {
-            int row = i / BoardSize;
-            int col = i % BoardSize;
-            _cells[row, col] = input[i];
+            int row, col;
+            (row, col, _) = GetCellCoordinates(cellNumber);
+            char ch = input[cellNumber];
+
+            // Convert '.' to '0' (denoting empty cell)
+            if (ch == '.')
+            {
+                ch = '0';
+            }
+
+            // Ensure c is between '0' - '9'
+            if (ch < '0' || ch > '9')
+            {
+                throw new FormatException(
+                    $"Invalid given board! " + 
+                    $"The character '{ch}' in cell ({row}, {col}). " +
+                    $"Only '0'-'9' or '.' are allowed."
+                );
+            }
+
+            _cells[row, col] = ch;
         }
+
 
         InitializeUsedCells();
     }
@@ -115,6 +134,18 @@ public sealed class SudokuBoard
                && !_colUsed[col, digit]
                && !_boxUsed[boxIndex, digit];
     }
+
+    /// <summary>
+    /// Given a cell index, returns the (row, col, box) coordinates
+    /// </summary>
+    public static (int row, int col, int box) GetCellCoordinates(int cellNumber, bool includeBox = false)
+    {
+        int row = cellNumber / BoardSize;
+        int col= cellNumber % BoardSize;
+        int box = includeBox ? (row / BoxLen) * BoxLen + (col / BoxLen);
+        return (row, col, box);
+    }
+
 
     private static int GetBoxIndex(int row, int col)
     {
