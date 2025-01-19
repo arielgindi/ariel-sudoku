@@ -1,18 +1,22 @@
 ﻿using ArielSudoku.Models;
 using System.Diagnostics;
-using static ArielSudoku.Common.Constants;
 
 internal class SudokuSolver
 {
     private SudokuBoard board;
+    private SudokuUsage usage; 
+
     private const int TimeLimitMilliseconds = 1000;
     private List<int> emptyCells;
 
     public void Solve(SudokuBoard sudokuBoard)
     {
         board = sudokuBoard;
+        usage = new SudokuUsage(board);
+
         Stopwatch stopwatch = Stopwatch.StartNew();
-        InitilazeSolver();
+
+        InitializeSolver();
 
         bool solved = Backtrack(stopwatch);
         if (!solved)
@@ -21,15 +25,15 @@ internal class SudokuSolver
         }
     }
 
-    private void InitilazeSolver()
+    private void InitializeSolver()
     {
         emptyCells = [];
 
-        for (int boardIndex = 0; boardIndex < CellCount; boardIndex++)
+        for (int cellNumber = 0; cellNumber < CellCount; cellNumber++)
         {
-            if (board[boardIndex] == '0')
+            if (board[cellNumber] == '0')
             {
-                emptyCells.Add(boardIndex);
+                emptyCells.Add(cellNumber);
             }
         }
     }
@@ -51,22 +55,24 @@ internal class SudokuSolver
             return true;
         }
 
-        int boardCellIndex = emptyCells[emptyCellIndex];
+        int cellNumber = emptyCells[emptyCellIndex];
 
+        // Try digits 1-9
         for (int digit = 1; digit <= BoardSize; digit++)
         {
-            if (board.IsSafeCell(boardCellIndex, digit))
+            if (usage.IsSafeCell(cellNumber, digit))
             {
-                board.PlaceDigit(boardCellIndex, digit);
+                usage.PlaceDigit(cellNumber, digit);
 
                 if (Backtrack(stopwatch, emptyCellIndex + 1))
                 {
                     return true;
                 }
 
-                board.RemoveDigit(boardCellIndex, digit);
+                usage.RemoveDigit(cellNumber, digit);
             }
         }
+
         return false;
     }
 }
