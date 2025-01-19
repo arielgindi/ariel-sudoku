@@ -1,13 +1,13 @@
 ﻿namespace ArielSudoku.Models;
 
-using static ArielSudoku.SudokuHelpers;
 using static ArielSudoku.Common.Constants;
+using static ArielSudoku.SudokuHelpers;
 /// <summary>
 /// A 9x9 Sudoku board stored as an array of chars.
 /// </summary>
 public sealed class SudokuBoard
 {
-    private readonly char[,] _cells;
+    private readonly char[] _cells;
 
     private bool[,] _rowUsed;
     private bool[,] _colUsed;
@@ -21,14 +21,13 @@ public sealed class SudokuBoard
         if (input.Length != CellCount)
             throw new ArgumentException($"Board must be exactly {CellCount} characters.", nameof(input));
 
-        _cells = new char[BoardSize, BoardSize];
+        _cells = new char[CellCount];
         for (int cellNumber = 0; cellNumber < CellCount; cellNumber++)
         {
-            int row, col;
-            (row, col, _) = GetCellCoordinates(cellNumber);
+
             char ch = input[cellNumber];
 
-            // Convert '.' to '0' (denoting empty cell)
+            // Convert '.' to '0'
             if (ch == '.')
             {
                 ch = '0';
@@ -37,6 +36,9 @@ public sealed class SudokuBoard
             // Ensure c is between '0' - '9'
             if (ch < '0' || ch > (char)('0' + BoardSize))
             {
+                int row, col;
+                (row, col, _) = GetCellCoordinates(cellNumber);
+
                 throw new FormatException(
                     $"Invalid given board! " +
                     $"The character '{ch}' in cell ({row}, {col}). " +
@@ -44,17 +46,17 @@ public sealed class SudokuBoard
                 );
             }
 
-            _cells[row, col] = ch;
+            _cells[cellNumber] = ch;
         }
 
 
         InitializeUsedCells();
     }
 
-    public char this[int row, int col]
+    public char this[int cellNumber]
     {
-        get => _cells[row, col];
-        set => _cells[row, col] = value;
+        get => _cells[cellNumber];
+        set => _cells[cellNumber] = value;
     }
 
     public bool IsComplete() => _cells.Cast<char>().All(cell => cell != '0');
@@ -68,16 +70,13 @@ public sealed class SudokuBoard
         _colUsed = new bool[BoardSize, BoardSize + 1];
         _boxUsed = new bool[BoardSize, BoardSize + 1];
 
-        for (int row = 0; row < BoardSize; row++)
+        for (int cellNumber = 0; cellNumber < CellCount; cellNumber++)
         {
-            for (int col = 0; col < BoardSize; col++)
+            char cell = _cells[cellNumber];
+            if (cell != '0')
             {
-                char cell = _cells[row, col];
-                if (cell != '0')
-                {
-                    int digit = cell - '0';
-                    PlaceDigit(row, col, digit);
-                }
+                int digit = cell - '0';
+                PlaceDigit(cellNumber, digit);
             }
         }
     }
@@ -86,19 +85,21 @@ public sealed class SudokuBoard
     /// Places a digit on the board and updates the tracking arrays.
     /// Throws an error if that digit is already used in the row/col/box.
     /// </summary>
-    public void PlaceDigit(int row, int col, int digit)
+    public void PlaceDigit(int cellNumber, int digit)
     {
-        int boxIndex = GetBoxIndex(row, col);
+        int row, col, box;
+        (row, col, box) = GetCellCoordinates(cellNumber);
+
 
 
         // if its invalid throw an error
-        if (_rowUsed[row, digit] || _colUsed[col, digit] || _boxUsed[boxIndex, digit])
+        if (_rowUsed[row, digit] || _colUsed[col, digit] || _boxUsed[box, digit])
         {
             List<string> conflicts = new List<string>
             {
                 _rowUsed[row, digit] ? $"row" : "",
                 _colUsed[col, digit] ? $"col" : "",
-                _boxUsed[boxIndex, digit] ? $"box" : ""
+                _boxUsed[box, digit] ? $"box" : ""
             }
             .Where(conflict => conflict.Length > 0)
             .ToList();
@@ -110,32 +111,37 @@ public sealed class SudokuBoard
         }
 
         // Otherwise, no conflicts place the digit
-        _cells[row, col] = (char)(digit + '0');
+        _cells[cellNumber] = (char)(digit + '0');
         _rowUsed[row, digit] = true;
         _colUsed[col, digit] = true;
-        _boxUsed[boxIndex, digit] = true;
+        _boxUsed[box, digit] = true;
     }
 
     /// <summary>
     /// Removes a digit from the board and updates the tracking arrays.
     /// </summary>
-    public void RemoveDigit(int row, int col, int digit)
+    public void RemoveDigit(int cellNumber, int digit)
     {
-        _cells[row, col] = '0';
+        int row, col, box;
+        (row, col, box) = GetCellCoordinates(cellNumber);
+
+        _cells[cellNumber] = '0';
         _rowUsed[row, digit] = false;
         _colUsed[col, digit] = false;
-        _boxUsed[GetBoxIndex(row, col), digit] = false;
+        _boxUsed[box, digit] = false;
     }
 
     /// <summary>
-    /// Checks if a digit can safely be placed at [row, col].
+    /// Checks if a digit can safely be placed at the same cellNumber.
     /// </summary>
-    public bool IsSafeCell(int row, int col, int digit)
+    public bool IsSafeCell(int cellNumber, int digit)
     {
-        int boxIndex = GetBoxIndex(row, col);
+        int row, col, box;
+        (row, col, box) = GetCellCoordinates(cellNumber);
+
         return !_rowUsed[row, digit]
                && !_colUsed[col, digit]
-               && !_boxUsed[boxIndex, digit];
+               && !_boxUsed[box, digit];
     }
 
 
@@ -145,13 +151,6 @@ public sealed class SudokuBoard
     /// </summary>
     public override string ToString()
     {
-        char[] chars = new char[CellCount];
-        for (int i = 0; i < CellCount; i++)
-        {
-            int row = i / BoardSize;
-            int col = i % BoardSize;
-            chars[i] = _cells[row, col];
-        }
-        return new string(chars);
+        return new string(_cells);
     }
 }

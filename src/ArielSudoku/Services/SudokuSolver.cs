@@ -1,6 +1,7 @@
 ﻿using ArielSudoku.Models;
 using System.Diagnostics;
-using static ArielSudoku.SudokuHelpers;
+using static ArielSudoku.Common.Constants;
+
 internal class SudokuSolver
 {
     private SudokuBoard board;
@@ -24,12 +25,11 @@ internal class SudokuSolver
     {
         emptyCells = [];
 
-        for (int cellNumber = 0; cellNumber < CellCount; cellNumber++)
+        for (int boardIndex = 0; boardIndex < CellCount; boardIndex++)
         {
-            (int row, int col, _) = GetCellCoordinates(cellNumber);
-            if (board[row, col] == '0')
+            if (board[boardIndex] == '0')
             {
-                emptyCells.Add(cellNumber);
+                emptyCells.Add(boardIndex);
             }
         }
     }
@@ -37,7 +37,7 @@ internal class SudokuSolver
     /// <summary>
     /// Backtracking that checks elapsed time to avoid exceeding 1 second.
     /// </summary>
-    private bool Backtrack(Stopwatch stopwatch, int index = 0)
+    private bool Backtrack(Stopwatch stopwatch, int emptyCellIndex = 0)
     {
         // If we exceed the time limit, throw an exception
         if (stopwatch.ElapsedMilliseconds > TimeLimitMilliseconds)
@@ -46,25 +46,25 @@ internal class SudokuSolver
         }
 
         // meaning board is now solved
-        if (index == emptyCells.Count)
+        if (emptyCellIndex == emptyCells.Count)
         {
             return true;
         }
 
-        (int row, int col, _) = GetCellCoordinates(emptyCells[index]);
+        int boardCellIndex = emptyCells[emptyCellIndex];
 
         for (int digit = 1; digit <= BoardSize; digit++)
         {
-            if (board.IsSafeCell(row, col, digit))
+            if (board.IsSafeCell(boardCellIndex, digit))
             {
-                board.PlaceDigit(row, col, digit);
+                board.PlaceDigit(boardCellIndex, digit);
 
-                if (Backtrack(stopwatch, index + 1))
+                if (Backtrack(stopwatch, emptyCellIndex + 1))
                 {
                     return true;
                 }
 
-                board.RemoveDigit(row, col, digit);
+                board.RemoveDigit(boardCellIndex, digit);
             }
         }
         return false;
