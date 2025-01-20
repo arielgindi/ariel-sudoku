@@ -1,22 +1,27 @@
 ﻿using ArielSudoku.Models;
 using System.Diagnostics;
-using static ArielSudoku.Common.Constants;
 
 internal class SudokuSolver
 {
-    private SudokuBoard board;
+    private readonly SudokuBoard board;
     private const int TimeLimitMilliseconds = 1000;
-    private List<int> emptyCells;
+    private readonly List<int> emptyCells;
+    private readonly Stopwatch stopwatch;
 
-    public void Solve(SudokuBoard sudokuBoard)
+    public SudokuSolver(SudokuBoard sudokuBoard)
     {
-        board = sudokuBoard;
+        board = sudokuBoard ?? throw new ArgumentNullException(nameof(sudokuBoard));
+        emptyCells = [];
+        stopwatch = new Stopwatch();
+    }
 
-        Stopwatch stopwatch = Stopwatch.StartNew();
+    public void Solve()
+    {
+        stopwatch.Restart();
 
         InitializeEmptyCells();
 
-        bool solved = Backtrack(stopwatch);
+        bool solved = Backtrack();
         if (!solved)
         {
             throw new InvalidOperationException("Puzzle is unsolvable or incomplete.");
@@ -25,8 +30,6 @@ internal class SudokuSolver
 
     private void InitializeEmptyCells()
     {
-        emptyCells = [];
-
         for (int cellNumber = 0; cellNumber < CellCount; cellNumber++)
         {
             if (board[cellNumber] == '0')
@@ -39,7 +42,7 @@ internal class SudokuSolver
     /// <summary>
     /// Backtracking that checks elapsed time to avoid exceeding 1 second.
     /// </summary>
-    private bool Backtrack(Stopwatch stopwatch, int emptyCellIndex = 0)
+    private bool Backtrack(int emptyCellIndex = 0)
     {
         // If we exceed the time limit, throw an exception
         if (stopwatch.ElapsedMilliseconds > TimeLimitMilliseconds)
@@ -62,7 +65,7 @@ internal class SudokuSolver
             {
                 board.PlaceDigit(cellNumber, digit);
 
-                if (Backtrack(stopwatch, emptyCellIndex + 1))
+                if (Backtrack(emptyCellIndex + 1))
                 {
                     return true;
                 }

@@ -23,8 +23,8 @@ public static class SudokuEngine
         SudokuBoard board = new(puzzleString);
 
         // 2. Solve the board.
-        SudokuSolver solver = new();
-        solver.Solve(board);
+        SudokuSolver solver = new(board);
+        solver.Solve();
 
         // 3. Verify the board is complete (solved).
         if (!board.IsComplete())
