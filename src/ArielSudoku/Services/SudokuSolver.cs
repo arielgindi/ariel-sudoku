@@ -1,22 +1,20 @@
 ﻿using ArielSudoku.Models;
 using System.Diagnostics;
+using static ArielSudoku.Common.Constants;
 
 internal class SudokuSolver
 {
     private SudokuBoard board;
-    private SudokuUsage usage; 
-
     private const int TimeLimitMilliseconds = 1000;
     private List<int> emptyCells;
 
     public void Solve(SudokuBoard sudokuBoard)
     {
         board = sudokuBoard;
-        usage = new SudokuUsage(board);
 
         Stopwatch stopwatch = Stopwatch.StartNew();
 
-        InitializeSolver();
+        InitializeEmptyCells();
 
         bool solved = Backtrack(stopwatch);
         if (!solved)
@@ -25,7 +23,7 @@ internal class SudokuSolver
         }
     }
 
-    private void InitializeSolver()
+    private void InitializeEmptyCells()
     {
         emptyCells = [];
 
@@ -60,16 +58,16 @@ internal class SudokuSolver
         // Try digits 1-9
         for (int digit = 1; digit <= BoardSize; digit++)
         {
-            if (usage.IsSafeCell(cellNumber, digit))
+            if (board.IsSafeCell(cellNumber, digit))
             {
-                usage.PlaceDigit(cellNumber, digit);
+                board.PlaceDigit(cellNumber, digit);
 
                 if (Backtrack(stopwatch, emptyCellIndex + 1))
                 {
                     return true;
                 }
 
-                usage.RemoveDigit(cellNumber, digit);
+                board.RemoveDigit(cellNumber, digit);
             }
         }
 

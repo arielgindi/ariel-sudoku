@@ -6,7 +6,7 @@ using static ArielSudoku.Common.Constants;
 /// <summary>
 /// A 9x9 Sudoku board stored as an array of chars.
 /// </summary>
-public sealed class SudokuBoard
+public sealed partial class SudokuBoard
 {
     private readonly char[] _cells;
 
@@ -19,10 +19,11 @@ public sealed class SudokuBoard
             throw new ArgumentException($"Board must be exactly {CellCount} characters.");
 
         _cells = new char[CellCount];
-        InitializeBoard(input);
+        InitializeBoardFromString(input);
+        SetUsageTracking();
     }
 
-    private void InitializeBoard(string input)
+    private void InitializeBoardFromString(string input)
     {
         for (int cellNumber = 0; cellNumber < CellCount; cellNumber++)
         {
@@ -32,9 +33,10 @@ public sealed class SudokuBoard
             if (ch == '.') ch = '0';
 
             // Ensure c is between '0' - '9'
+            int row, col, box;
+            (row, col, box) = GetCellCoordinates(cellNumber);
             if (ch < '0' || ch > (char)('0' + BoardSize))
             {
-                var (row, col, _) = GetCellCoordinates(cellNumber);
                 throw new FormatException(
                     $"Invalid board: '{ch}' at cell ({row},{col}). " +
                     $"Allowed characters are '0'-'{BoardSize}' or '.'."

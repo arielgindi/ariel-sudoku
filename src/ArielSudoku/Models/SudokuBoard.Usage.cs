@@ -1,37 +1,33 @@
 ﻿namespace ArielSudoku.Models;
 
-using static ArielSudoku.SudokuHelpers;
 using static ArielSudoku.Common.Constants;
+using static ArielSudoku.SudokuHelpers;
 
 /// <summary>
 /// Remember row, colum and box usage of 
 /// digits for faster and easier access.
 /// </summary>
-public sealed class SudokuUsage
+public sealed partial class SudokuBoard
 {
-    private readonly bool[,] _rowUsed;
-    private readonly bool[,] _colUsed;
-    private readonly bool[,] _boxUsed;
+    private bool[,] _rowUsed;
+    private bool[,] _colUsed;
+    private bool[,] _boxUsed;
 
-    private readonly SudokuBoard _board;
-
-    public SudokuUsage(SudokuBoard board)
+    public void SetUsageTracking()
     {
-        _board = board;
-
         _rowUsed = new bool[BoardSize, BoardSize + 1];
         _colUsed = new bool[BoardSize, BoardSize + 1];
         _boxUsed = new bool[BoardSize, BoardSize + 1];
 
-        Initialize();
+        PopulateUsageFromBoard();
     }
 
-    private void Initialize()
+    private void PopulateUsageFromBoard()
     {
         // save usage for each non empty cell
         for (int cellNumber = 0; cellNumber < CellCount; cellNumber++)
         {
-            char cell = _board[cellNumber];
+            char cell = this[cellNumber];
             if (cell != '0')
             {
                 int digit = cell - '0';
@@ -58,19 +54,20 @@ public sealed class SudokuUsage
     /// </summary>
     public void PlaceDigit(int cellNumber, int digit)
     {
-        _board[cellNumber] = (char)(digit + '0');
-        MarkUsed(cellNumber, digit, true);  
+        this[cellNumber] = (char)(digit + '0');
+        MarkUsed(cellNumber, digit, true);
     }
 
     public void RemoveDigit(int cellNumber, int digit)
     {
-        _board[cellNumber] = '0';
+        this[cellNumber] = '0';
         MarkUsed(cellNumber, digit, false);
     }
 
     private void MarkUsed(int cellNumber, int digit, bool used)
     {
-        var (row, col, box) = GetCellCoordinates(cellNumber);
+        int row, col, box;
+        (row, col, box) = GetCellCoordinates(cellNumber);
         _rowUsed[row, digit] = used;
         _colUsed[col, digit] = used;
         _boxUsed[box, digit] = used;
