@@ -9,20 +9,11 @@ using static ArielSudoku.SudokuHelpers;
 /// </summary>
 public sealed partial class SudokuBoard
 {
-    private bool[,] _rowUsed;
-    private bool[,] _colUsed;
-    private bool[,] _boxUsed;
+    private readonly bool[,] _rowUsed = new bool[BoardSize, BoardSize + 1];
+    private readonly bool[,] _colUsed = new bool[BoardSize, BoardSize + 1]; 
+    private readonly bool[,] _boxUsed = new bool[BoardSize, BoardSize + 1];
 
-    public void SetUsageTracking()
-    {
-        _rowUsed = new bool[BoardSize, BoardSize + 1];
-        _colUsed = new bool[BoardSize, BoardSize + 1];
-        _boxUsed = new bool[BoardSize, BoardSize + 1];
-
-        PopulateUsageFromBoard();
-    }
-
-    private void PopulateUsageFromBoard()
+    private void SetUsageTracking()
     {
         // save usage for each non empty cell
         for (int cellNumber = 0; cellNumber < CellCount; cellNumber++)

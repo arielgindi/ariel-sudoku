@@ -1,17 +1,16 @@
 ﻿using ArielSudoku.Models;
 using System.Diagnostics;
+using static ArielSudoku.Common.Constants;
 
 internal class SudokuSolver
 {
     private readonly SudokuBoard board;
     private const int TimeLimitMilliseconds = 1000;
-    private readonly List<int> emptyCells;
     private readonly Stopwatch stopwatch;
 
     public SudokuSolver(SudokuBoard sudokuBoard)
     {
         board = sudokuBoard ?? throw new ArgumentNullException(nameof(sudokuBoard));
-        emptyCells = [];
         stopwatch = new Stopwatch();
     }
 
@@ -19,26 +18,12 @@ internal class SudokuSolver
     {
         stopwatch.Restart();
 
-        InitializeEmptyCells();
-
         bool solved = Backtrack();
         if (!solved)
         {
             throw new InvalidOperationException("Puzzle is unsolvable or incomplete.");
         }
     }
-
-    private void InitializeEmptyCells()
-    {
-        for (int cellNumber = 0; cellNumber < CellCount; cellNumber++)
-        {
-            if (board[cellNumber] == '0')
-            {
-                emptyCells.Add(cellNumber);
-            }
-        }
-    }
-
     /// <summary>
     /// Backtracking that checks elapsed time to avoid exceeding 1 second.
     /// </summary>
@@ -51,13 +36,14 @@ internal class SudokuSolver
         }
 
         // meaning board is now solved
-        if (emptyCellIndex == emptyCells.Count)
+        if (emptyCellIndex == board.EmptyCells.Count)
         {
             return true;
         }
 
-        int cellNumber = emptyCells[emptyCellIndex];
-
+        // Pick the next empty cell
+        int cellNumber = board.EmptyCells[emptyCellIndex];
+         
         // Try digits 1-9
         for (int digit = 1; digit <= BoardSize; digit++)
         {
@@ -76,4 +62,6 @@ internal class SudokuSolver
 
         return false;
     }
+
+    private bool IsComplete() => board.All(cell => cell != '0');
 }

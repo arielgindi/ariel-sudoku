@@ -8,7 +8,7 @@ using static ArielSudoku.Common.Constants;
 /// </summary>
 public sealed partial class SudokuBoard
 {
-    private readonly char[] _cells;
+    private readonly char[] _cells = new char[CellCount];
 
     public SudokuBoard(string input)
     {
@@ -18,9 +18,9 @@ public sealed partial class SudokuBoard
         if (input.Length != CellCount)
             throw new ArgumentException($"Board must be exactly {CellCount} characters.");
 
-        _cells = new char[CellCount];
         InitializeBoardFromString(input);
         SetUsageTracking();
+        InitializeEmptyCellsList();
     }
 
     private void InitializeBoardFromString(string input)
@@ -28,13 +28,11 @@ public sealed partial class SudokuBoard
         for (int cellNumber = 0; cellNumber < CellCount; cellNumber++)
         {
             char ch = input[cellNumber];
-
-            // Convert '.' to '0'
             if (ch == '.') ch = '0';
 
             // Ensure c is between '0' - '9'
-            int row, col, box;
-            (row, col, box) = GetCellCoordinates(cellNumber);
+            int row, col;
+            (row, col, _) = GetCellCoordinates(cellNumber);
             if (ch < '0' || ch > (char)('0' + BoardSize))
             {
                 throw new FormatException(
@@ -53,13 +51,6 @@ public sealed partial class SudokuBoard
         set => _cells[cellNumber] = value;
     }
 
-    /// <summary>
-    /// Check if the board is complete (no '0' cells).
-    /// </summary>
-    public bool IsComplete() => _cells.All(cell => cell != '0');
 
-    /// <summary>
-    /// Print the board as an 81 characters string.
-    /// </summary>
     public override string ToString() => new(_cells);
 }
