@@ -50,7 +50,7 @@ public sealed partial class SudokuBoard
         get => _cells[cellNumber];
         set => _cells[cellNumber] = value;
     }
-
+    private bool IsComplete => EmptyCells.Count == 0;
 
     public override string ToString() => new(_cells);
 }

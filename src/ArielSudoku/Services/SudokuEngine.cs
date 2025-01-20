@@ -27,7 +27,7 @@ public static class SudokuEngine
         solver.Solve();
 
         // 3. Verify the board is complete (solved).
-        if (!board.IsComplete())
+        if (!board.IsComplete)
         {
             throw new InvalidOperationException("Puzzle is unsolvable or incomplete.");
         }

@@ -62,6 +62,4 @@ internal class SudokuSolver
 
         return false;
     }
-
-    private bool IsComplete() => board.All(cell => cell != '0');
 }
