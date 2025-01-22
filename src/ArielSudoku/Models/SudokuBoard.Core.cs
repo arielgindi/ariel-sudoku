@@ -20,7 +20,6 @@ public sealed partial class SudokuBoard
 
         InitializeBoardFromString(input);
         SetUsageTracking();
-        InitializeEmptyCellsList();
     }
 
     private void InitializeBoardFromString(string input)
@@ -44,13 +43,10 @@ public sealed partial class SudokuBoard
             _cells[cellNumber] = ch;
         }
     }
-
     public char this[int cellNumber]
     {
         get => _cells[cellNumber];
         set => _cells[cellNumber] = value;
     }
-    private bool IsComplete => EmptyCells.Count == 0;
-
     public override string ToString() => new(_cells);
 }

@@ -36,13 +36,13 @@ internal class SudokuSolver
         }
 
         // meaning board is now solved
-        if (emptyCellIndex == board.EmptyCells.Count)
+        if (emptyCellIndex == board.EmptyCellsIndexes.Count)
         {
             return true;
         }
 
         // Pick the next empty cell
-        int cellNumber = board.EmptyCells[emptyCellIndex];
+        int cellNumber = board.EmptyCellsIndexes[emptyCellIndex];
          
         // Try digits 1-9
         for (int digit = 1; digit <= BoardSize; digit++)

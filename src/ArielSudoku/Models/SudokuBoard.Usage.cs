@@ -9,9 +9,10 @@ using static ArielSudoku.SudokuHelpers;
 /// </summary>
 public sealed partial class SudokuBoard
 {
-    private readonly bool[,] _rowUsed = new bool[BoardSize, BoardSize + 1];
-    private readonly bool[,] _colUsed = new bool[BoardSize, BoardSize + 1]; 
-    private readonly bool[,] _boxUsed = new bool[BoardSize, BoardSize + 1];
+    private readonly int[] _rowMask = new int[BoardSize];
+    private readonly int[] _colMask = new int[BoardSize];
+    private readonly int[] _boxMask = new int[BoardSize];
+    public List<int> EmptyCellsIndexes { get; } = [];
 
     private void SetUsageTracking()
     {
@@ -23,7 +24,9 @@ public sealed partial class SudokuBoard
             {
                 int digit = cell - '0';
                 PlaceDigit(cellNumber, digit);
+                continue;
             }
+            EmptyCellsIndexes.Add(cellNumber);
         }
     }
 
@@ -35,32 +38,40 @@ public sealed partial class SudokuBoard
         int row, col, box;
         (row, col, box) = GetCellCoordinates(cellNumber);
 
-        return !_rowUsed[row, digit]
-            && !_colUsed[col, digit]
-            && !_boxUsed[box, digit];
+        if (IsBitSet(_rowMask[row], digit)) return false;
+        if (IsBitSet(_colMask[col], digit)) return false;
+        if (IsBitSet(_boxMask[box], digit)) return false;
+
+        return true;
     }
 
     /// <summary>
-    /// Place a digit, if its '0' it will set it to empty automaticly
+    /// Place a digit, and update the bitmasks
     /// </summary>
     public void PlaceDigit(int cellNumber, int digit)
     {
         this[cellNumber] = (char)(digit + '0');
-        MarkUsed(cellNumber, digit, true);
+
+        int row, col, box;
+        (row, col, box) = GetCellCoordinates(cellNumber);
+
+        _rowMask[row] = SetBit(_rowMask[row], digit);
+        _colMask[col] = SetBit(_colMask[col], digit);
+        _boxMask[box] = SetBit(_boxMask[box], digit);
     }
 
+    /// <summary>
+    /// Remove a digit, and update the bitmasks
+    /// </summary>
     public void RemoveDigit(int cellNumber, int digit)
     {
         this[cellNumber] = '0';
-        MarkUsed(cellNumber, digit, false);
-    }
 
-    private void MarkUsed(int cellNumber, int digit, bool used)
-    {
         int row, col, box;
         (row, col, box) = GetCellCoordinates(cellNumber);
-        _rowUsed[row, digit] = used;
-        _colUsed[col, digit] = used;
-        _boxUsed[box, digit] = used;
+
+        _rowMask[row] = ClearBit(_rowMask[row], digit);
+        _colMask[col] = ClearBit(_colMask[col], digit);
+        _boxMask[box] = ClearBit(_boxMask[box], digit);
     }
 }

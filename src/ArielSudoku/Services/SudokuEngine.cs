@@ -26,7 +26,7 @@ public static class SudokuEngine
         SudokuSolver solver = new(board);
         solver.Solve();
 
-        // 4. Convert the solved board back to string.
+        // 3. Convert the solved board back to string.
         string solvedPuzzle = board.ToString();
         return solvedPuzzle;
     }
