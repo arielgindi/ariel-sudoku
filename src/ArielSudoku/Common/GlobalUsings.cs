@@ -1,1 +1,1 @@
-﻿global using static ArielSudoku.Constants;
+﻿global using static ArielSudoku.Common.Constants;

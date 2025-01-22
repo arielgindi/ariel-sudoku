@@ -1,4 +1,4 @@
-﻿namespace ArielSudoku;
+﻿namespace ArielSudoku.Common;
 
 public static class Constants
 {
