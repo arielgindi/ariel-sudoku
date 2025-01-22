@@ -26,12 +26,6 @@ public static class SudokuEngine
         SudokuSolver solver = new(board);
         solver.Solve();
 
-        // 3. Verify the board is complete (solved).
-        if (!board.IsComplete)
-        {
-            throw new InvalidOperationException("Puzzle is unsolvable or incomplete.");
-        }
-
         // 4. Convert the solved board back to string.
         string solvedPuzzle = board.ToString();
         return solvedPuzzle;
