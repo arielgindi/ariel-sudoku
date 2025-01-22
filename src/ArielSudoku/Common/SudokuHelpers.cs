@@ -25,14 +25,14 @@ public static class SudokuHelpers
     /// Convert digit to his correct bitmask value
     /// For example: 1 becomes 0001, 2 becomes 0010 etc
     /// </summary>
-    public static int GetMaskForDigit(int digit) => 1 << (digit - 1);
+    public static int GetMaskForDigit(int digit) => 1 << (digit);
 
 
     /// <summary>
     /// Check if a given digit is in bitmask
     /// For example: if mask=1010 and digit=2 it return true
     /// </summary>
-    public static bool IsBitSet(int mask, int digit) => (mask & (1 << (digit - 1))) != 0;
+    public static bool IsBitSet(int mask, int digit) => (mask & (1 << (digit))) != 0;
 
 
     /// <summary>

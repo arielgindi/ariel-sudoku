@@ -9,9 +9,9 @@ using static ArielSudoku.SudokuHelpers;
 /// </summary>
 public sealed partial class SudokuBoard
 {
-    private readonly int[] _rowMask = new int[BoardSize];
-    private readonly int[] _colMask = new int[BoardSize];
-    private readonly int[] _boxMask = new int[BoardSize];
+    private readonly int[] _rowMask = new int[BoardSize + 1];
+    private readonly int[] _colMask = new int[BoardSize + 1];
+    private readonly int[] _boxMask = new int[BoardSize + 1];
     public List<int> EmptyCellsIndexes { get; } = [];
 
     private void SetUsageTracking()
