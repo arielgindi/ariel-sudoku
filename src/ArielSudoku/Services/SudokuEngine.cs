@@ -1,4 +1,6 @@
-﻿public static class SudokuEngine
+﻿using ArielSudoku.Models;
+
+public static class SudokuEngine
 {
     /// <summary>
     /// Solves a Sudoku puzzle in one call.
@@ -21,14 +23,8 @@
         SudokuBoard board = new(puzzleString);
 
         // 2. Solve the board.
-        SudokuSolver solver = new();
-        solver.Solve(board);
-
-        // 3. Verify the board is complete (solved).
-        if (!board.IsComplete())
-        {
-            throw new InvalidOperationException("Puzzle is unsolvable or incomplete.");
-        }
+        SudokuSolver solver = new(board);
+        solver.Solve();
 
         // 4. Convert the solved board back to string.
         string solvedPuzzle = board.ToString();
