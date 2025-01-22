@@ -1,0 +1,46 @@
+﻿namespace ArielSudoku.Tests;
+public class HardSudokuTests : SudokuTestsBase
+{
+    [Fact]
+    public void SolveHardSudoku1()
+    {
+        string puzzle = "869000312020000080070108040030000090700060004001902500000836000400070003000010000";
+        string expectedSolution = "869457312124693785573128946235741698798365124641982537952836471416279853387514269";
+        CheckPuzzleSolution(puzzle, expectedSolution);
+    }
+
+    [Fact]
+    public void SolveHardSudoku2()
+    {
+        string puzzle = "080200400570000100002300000820090005000715000700020041000006700003000018007009050";
+        string expectedSolution = "389251467576948132142367589821694375934715826765823941258136794493572618617489253";
+        CheckPuzzleSolution(puzzle, expectedSolution);
+    }
+
+
+    [Fact]
+    public void SolveHardSudoku3()
+    {
+        string puzzle = "040000000086100034001500260000305840000040000058902000095008300160009450000000010";
+        string expectedSolution = "547236981286197534931584267619375842372841695458962173795418326163729458824653719";
+        CheckPuzzleSolution(puzzle, expectedSolution);
+    }
+
+
+    [Fact]
+    public void SolveHardSudoku4()
+    {
+        string puzzle = "200010007000207000050000020005020400001549200300708001070804030000000000630000085";
+        string expectedSolution = "293615847416287359857493126965321478781549263342768591179854632528936714634172985";
+        CheckPuzzleSolution(puzzle, expectedSolution);
+    }
+
+
+    [Fact]
+    public void SolveHardSudoku5()
+    {
+        string puzzle = "020016005000000400306000207600075040000000000080230006207000604005000000100590070";
+        string expectedSolution = "429716385718352469356849217632975148971468523584231796297183654845627931163594872";
+        CheckPuzzleSolution(puzzle, expectedSolution);
+    }
+}

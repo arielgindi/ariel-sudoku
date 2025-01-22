@@ -3,7 +3,7 @@
 namespace ArielSudoku
 {
     /// <summary>
-    /// Handles CLI input for a fake Sudoku demo.
+    /// Handles CLI input for the Sudoku solver.
     /// </summary>
     internal static class CliHandler
     {
@@ -13,7 +13,6 @@ namespace ArielSudoku
         private const string BOLD = "\x1B[1m";
         private const string RESET = "\x1B[0m";
 
-
         /// <summary>
         /// Prints a short welcome message.
         /// </summary>
@@ -22,12 +21,13 @@ namespace ArielSudoku
             Console.WriteLine($"{CYAN}====================================={RESET}");
             Console.WriteLine($"{CYAN}{BOLD}          Gindi Calculator{RESET}");
             Console.WriteLine($"{CYAN}====================================={RESET}");
-            Console.WriteLine("Enter exactly 81 characters to mimic a Sudoku input.");
+            Console.WriteLine($"Enter exactly {CellCount} characters to input a Sudoku puzzle.");
+            Console.WriteLine("Type 'exit' to quit.");
             Console.WriteLine();
         }
 
         /// <summary>
-        /// Main loop: waits for input, checks length, returns dummy result.
+        /// Main loop: waits for input, checks length, and processes the Sudoku puzzle.
         /// </summary>
         public static void Run()
         {
@@ -38,25 +38,29 @@ namespace ArielSudoku
                 Console.Write($"{CYAN}>> {RESET}");
                 string? userInput = Console.ReadLine()?.Trim();
 
-                if (userInput == null)
+                if (string.IsNullOrWhiteSpace(userInput))
                 {
-                    Console.WriteLine("\nGoodbye!");
-                    break;
+                    Console.WriteLine($"{RED}Error: Input cannot be empty.{RESET}");
+                    continue;
                 }
+
                 try
                 {
-                    if (userInput.Length != 81)
+                    if (userInput.Length != CellCount)
                     {
-                        throw new FormatException($"Input must be 81 characters, but it is {userInput.Length}.");
+                        throw new FormatException($"Input must be {CellCount} characters, but it is {userInput.Length}.");
                     }
 
-                    string fakeSolution = new('9', 81);
+                    Stopwatch stopwatch = Stopwatch.StartNew();
+                    string solvedPuzzle = SudokuEngine.SolveSudoku(userInput);
+                    stopwatch.Stop();
 
-                    Console.WriteLine($"{GREEN}Result: {fakeSolution}{RESET} (0.024s)");
+                    Console.WriteLine($"{GREEN}Solved Sudoku:{RESET} {solvedPuzzle}");
+                    Console.WriteLine($"(Solved in {stopwatch.Elapsed.TotalSeconds:F3}s)");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"{RED}Error: {ex.Message}{RESET} (0.003s)");
+                    Console.WriteLine($"{RED}Error: {ex.Message}{RESET}");
                 }
             }
         }
