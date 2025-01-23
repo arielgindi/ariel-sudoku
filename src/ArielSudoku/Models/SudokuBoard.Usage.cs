@@ -38,11 +38,11 @@ public sealed partial class SudokuBoard
         int row, col, box;
         (row, col, box) = CellCoordinates[cellNumber];
 
-        if (IsBitSet(_rowMask[row], digit)) return false;
-        if (IsBitSet(_colMask[col], digit)) return false;
-        if (IsBitSet(_boxMask[box], digit)) return false;
+        int bit = GetMaskForDigit(digit);
 
-        return true;
+        // For example if _rowMask=0100, _colMask=0000, _boxMask=0001 in binary, the OR command
+        // combine them into 0101, than if digit (as bitmask) is 0100 than it returns true
+        return ((_rowMask[row] | _colMask[col] | _boxMask[box]) & bit) == 0;
     }
 
     /// <summary>

@@ -7,15 +7,6 @@ public static class SudokuHelpers
     /// For example: 1 becomes 0001, 2 becomes 0010 etc
     /// </summary>
     public static int GetMaskForDigit(int digit) => 1 << (digit);
-
-
-    /// <summary>
-    /// Check if a given digit is in bitmask
-    /// For example: if mask=1010 and digit=2 it return true
-    /// </summary>
-    public static bool IsBitSet(int mask, int digit) => (mask & (1 << (digit))) != 0;
-
-
     /// <summary>
     /// Add a digit to the mask by setting its bit
     /// For example: If mask is 1000 and digit is 2 it return 1010
