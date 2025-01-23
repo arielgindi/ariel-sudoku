@@ -30,8 +30,8 @@ public sealed partial class SudokuBoard
             if (ch == '.') ch = '0';
 
             // Ensure c is between '0' - '9'
-            int row, col;
-            (row, col, _) = GetCellCoordinates(cellNumber);
+            int row = CellCoordinates[cellNumber].row;
+            int col = CellCoordinates[cellNumber].col;
             if (ch < '0' || ch > (char)('0' + BoardSize))
             {
                 throw new FormatException(

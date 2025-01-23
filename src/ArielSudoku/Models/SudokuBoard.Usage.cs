@@ -36,7 +36,7 @@ public sealed partial class SudokuBoard
     public bool IsSafeCell(int cellNumber, int digit)
     {
         int row, col, box;
-        (row, col, box) = GetCellCoordinates(cellNumber);
+        (row, col, box) = CellCoordinates[cellNumber];
 
         if (IsBitSet(_rowMask[row], digit)) return false;
         if (IsBitSet(_colMask[col], digit)) return false;
@@ -53,7 +53,7 @@ public sealed partial class SudokuBoard
         this[cellNumber] = (char)(digit + '0');
 
         int row, col, box;
-        (row, col, box) = GetCellCoordinates(cellNumber);
+        (row, col, box) = CellCoordinates[cellNumber];
 
         _rowMask[row] = SetBit(_rowMask[row], digit);
         _colMask[col] = SetBit(_colMask[col], digit);
@@ -68,7 +68,7 @@ public sealed partial class SudokuBoard
         this[cellNumber] = '0';
 
         int row, col, box;
-        (row, col, box) = GetCellCoordinates(cellNumber);
+        (row, col, box) = CellCoordinates[cellNumber];
 
         _rowMask[row] = ClearBit(_rowMask[row], digit);
         _colMask[col] = ClearBit(_colMask[col], digit);
