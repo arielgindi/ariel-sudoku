@@ -58,7 +58,7 @@ namespace ArielSudoku
                     }
 
                     Stopwatch stopwatch = Stopwatch.StartNew();
-                    (string solvedPuzzle, int backtrackCallAmount) = SudokuEngine.SolveSudoku(sudokuPuzzle, showMore);
+                    (string solvedPuzzle, int backtrackCallAmount) = SudokuEngine.SolveSudoku(sudokuPuzzle);
                     stopwatch.Stop();
 
                     Console.WriteLine($"{GREEN}Result{RESET}: {YELLOW}{solvedPuzzle}{RESET} ({stopwatch.Elapsed.TotalSeconds:F3}s)");
