@@ -7,11 +7,13 @@ internal class SudokuSolver
     private readonly SudokuBoard board;
     private const int TimeLimitMilliseconds = 1000;
     private readonly Stopwatch stopwatch;
-
-    public SudokuSolver(SudokuBoard sudokuBoard)
+    public int backtrackCallAmount = 0;
+    readonly bool showMore;
+    public SudokuSolver(SudokuBoard sudokuBoard, bool showMore = false)
     {
-        board = sudokuBoard ?? throw new ArgumentNullException(nameof(sudokuBoard));
+        board = sudokuBoard;
         stopwatch = new Stopwatch();
+        this.showMore = showMore;
     }
 
     public void Solve()
@@ -29,6 +31,8 @@ internal class SudokuSolver
     /// </summary>
     private bool Backtrack(int emptyCellIndex = 0)
     {
+        if (showMore)
+            backtrackCallAmount++;
         // If we exceed the time limit, throw an exception
         if (stopwatch.ElapsedMilliseconds > TimeLimitMilliseconds)
         {

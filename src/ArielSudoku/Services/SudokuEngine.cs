@@ -17,17 +17,18 @@ public static class SudokuEngine
     /// <exception cref="InvalidOperationException">
     /// Thrown if the puzzle is unsolvable.
     /// </exception>
-    public static string SolveSudoku(string puzzleString)
+    public static (string solvedPuzzle, int backtrackCallAmount) SolveSudoku(string puzzleString, bool showMore = false)
     {
         // 1. Parse into a SudokuBoard.
         SudokuBoard board = new(puzzleString);
 
         // 2. Solve the board.
-        SudokuSolver solver = new(board);
+        SudokuSolver solver = new(board, showMore);
         solver.Solve();
 
         // 3. Convert the solved board back to string.
         string solvedPuzzle = board.ToString();
-        return solvedPuzzle;
+        int backtrackCallAmount = solver.backtrackCallAmount;
+        return (solvedPuzzle, backtrackCallAmount);
     }
 }
