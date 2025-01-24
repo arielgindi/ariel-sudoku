@@ -12,9 +12,6 @@ public sealed partial class SudokuBoard
 
     public SudokuBoard(string input)
     {
-        if (input.Length != CellCount)
-            throw new InputInvalidSizeException($"Board must be exactly {CellCount} characters.");
-
         InitializeBoardFromString(input);
         SetUsageTracking();
     }
