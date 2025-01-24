@@ -1,4 +1,6 @@
-﻿namespace ArielSudoku;
+﻿using System.Numerics;
+
+namespace ArielSudoku;
 
 public static class SudokuHelpers
 {
@@ -19,4 +21,10 @@ public static class SudokuHelpers
     /// </summary>
     public static int ClearBit(int mask, int digit) => mask & ~GetMaskForDigit(digit);
 
+    /// <summary>
+    /// Counts the number of bits in integer (how many digits are possible).
+    /// </summary>
+    /// <param name="mask"/>
+    /// <returns>The number of bits inside the mask</returns>
+    public static int CountBits(int mask) => BitOperations.PopCount((uint)mask);
 }

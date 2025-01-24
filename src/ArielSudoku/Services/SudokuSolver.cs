@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 internal class SudokuSolver
 {
-    public int BacktrackCallAmount { get; private set; } 
+    public int BacktrackCallAmount { get; private set; }
     private readonly SudokuBoard _board;
     private readonly Stopwatch _stopwatch;
     private const int _TimeLimitMilliseconds = 1000;
@@ -41,7 +41,7 @@ internal class SudokuSolver
         // Only check if it took more than 1 sec even 1000 calls to improve performance by 8% on average
         if (BacktrackCallAmount % _CheckFrequency == 0 && _stopwatch.ElapsedMilliseconds > _TimeLimitMilliseconds)
         {
-                throw new TimeoutException("Puzzle took more than 1 second to solve.");
+            throw new TimeoutException("Puzzle took more than 1 second to solve.");
         }
 
         // Meaning board is solved
@@ -51,7 +51,11 @@ internal class SudokuSolver
         }
 
         // Pick the next empty cell
-        int cellNumber = _board.EmptyCellsIndexes[emptyCellIndex];
+        int cellNumber = _board.FindLeastOptionsCellIndex();
+        if (cellNumber == -1)
+        {
+            return false;
+        }
 
         // Try digits 1-9
         for (int digit = 1; digit <= BoardSize; digit++)
