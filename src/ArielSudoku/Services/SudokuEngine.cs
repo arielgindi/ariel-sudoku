@@ -1,4 +1,6 @@
-﻿public static class SudokuEngine
+﻿using ArielSudoku.Models;
+
+public static class SudokuEngine
 {
     /// <summary>
     /// Solves a Sudoku puzzle in one call.
@@ -15,23 +17,18 @@
     /// <exception cref="InvalidOperationException">
     /// Thrown if the puzzle is unsolvable.
     /// </exception>
-    public static string SolveSudoku(string puzzleString)
+    public static (string solvedPuzzle, int backtrackCallAmount) SolveSudoku(string puzzleString)
     {
         // 1. Parse into a SudokuBoard.
         SudokuBoard board = new(puzzleString);
 
         // 2. Solve the board.
-        SudokuSolver solver = new();
-        solver.Solve(board);
+        SudokuSolver solver = new(board);
+        solver.Solve();
 
-        // 3. Verify the board is complete (solved).
-        if (!board.IsComplete())
-        {
-            throw new InvalidOperationException("Puzzle is unsolvable or incomplete.");
-        }
-
-        // 4. Convert the solved board back to string.
+        // 3. Convert the solved board back to string.
         string solvedPuzzle = board.ToString();
-        return solvedPuzzle;
+        int backtrackCallAmount = solver.BacktrackCallAmount;
+        return (solvedPuzzle, backtrackCallAmount);
     }
 }
