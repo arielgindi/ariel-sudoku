@@ -1,5 +1,5 @@
-﻿using System.Diagnostics;
-using System.Threading.Channels;
+﻿using ArielSudoku.Exceptions;
+using System.Diagnostics;
 
 namespace ArielSudoku
 {
@@ -46,7 +46,6 @@ namespace ArielSudoku
 
                     if (string.IsNullOrWhiteSpace(userInput))
                     {
-                        Console.WriteLine($"{RED}Error: Input cannot be empty.{RESET}");
                         continue;
                     }
 
@@ -75,7 +74,7 @@ namespace ArielSudoku
             }
         }
 
-        static (string, bool) ParseInput(string  userInput)
+        static (string, bool) ParseInput(string userInput)
         {
             string[] parts = userInput?.Split(' ', StringSplitOptions.RemoveEmptyEntries) ?? [];
 
@@ -93,10 +92,10 @@ namespace ArielSudoku
             {
                 if (parts[1] == "--m" || parts[1] == "--more")
                     return (parts[0], true);
-                throw new FormatException("Invalid flag. do you mean '--more'?");
+                throw new SudokuInvalidFlagException("Invalid flag. do you mean '--more'?");
             }
 
-            throw new FormatException("Too many arguments. Provide a puzzle and optionally the '--more' flag.");
+            throw new TooManyArgumentsException("Too many arguments. Provide a puzzle and optionally the '--more' flag.");
         }
     }
 }
