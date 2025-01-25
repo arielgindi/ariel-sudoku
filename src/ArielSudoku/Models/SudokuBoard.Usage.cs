@@ -140,33 +140,23 @@ public sealed partial class SudokuBoard
         // For example: if there is a cell that was effected by row and by call, 
         // it will only add it once
         HashSet<int> affectedCells = [];
-        (int rowIndex, int colIndex, int _) = CellCoordinates[cellIndex];
+        (int rowIndex, int colIndex, int boxIndex) = CellCoordinates[cellIndex];
 
         // Add all cells in the same row
-        int startRow = rowIndex * BoardSize;
-        for (int i = 0; i < BoardSize; i++)
+        foreach (int cell in CellsInRow[rowIndex])
         {
-            affectedCells.Add(startRow + i);
+            affectedCells.Add(cell);
+        }
+        foreach (int cell in CellsInCol[colIndex])
+        {
+            affectedCells.Add(cell);
+        }
+        foreach (int cell in CellsInBox[boxIndex])
+        {
+            affectedCells.Add(cell);
         }
 
-        // Add all cells in the same col
-        for (int i = 0; i < BoardSize; i++)
-        {
-            affectedCells.Add(i * BoardSize + colIndex);
-        }
-
-        // Add all cells in the same box
-        int boxRow = (rowIndex / BoxSize) * BoxSize;
-        int boxCol = (colIndex / BoxSize) * BoxSize;
-        for (int r = 0; r < BoxSize; r++)
-        {
-            for (int c = 0; c < BoxSize; c++)
-            {
-                affectedCells.Add((boxRow + r) * BoardSize + (boxCol + c));
-            }
-        }
-
-        // Recalculate each cell mask and if needed
+        // Recalculate each affected cell
         foreach (int affectedCellIndex in affectedCells)
         {
             if (this[affectedCellIndex] == '0')
