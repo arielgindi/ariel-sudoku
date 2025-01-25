@@ -1,65 +1,80 @@
-﻿using ArielSudoku.Models;
+﻿using ArielSudoku.Exceptions;
+using ArielSudoku.Models;
 using System.Diagnostics;
-using static ArielSudoku.Common.Constants;
 
 internal class SudokuSolver
 {
-    private readonly SudokuBoard board;
-    private const int TimeLimitMilliseconds = 1000;
-    private readonly Stopwatch stopwatch;
+    public int BacktrackCallAmount { get; private set; }
+    private readonly SudokuBoard _board;
+    private readonly Stopwatch _stopwatch;
+    private const int _TimeLimitMilliseconds = 1000;
+    private const int _CheckFrequency = 1000;
 
     public SudokuSolver(SudokuBoard sudokuBoard)
     {
-        board = sudokuBoard ?? throw new ArgumentNullException(nameof(sudokuBoard));
-        stopwatch = new Stopwatch();
+        _board = sudokuBoard;
+        _stopwatch = new Stopwatch();
     }
 
+    /// <summary>
+    /// Try to solve the board up to 1 sec
+    /// </summary>
+    /// <exception cref="UnsolvableSudokuException">Thrown if puzzle cannot be solve</exception>
     public void Solve()
     {
-        stopwatch.Restart();
-
+        _stopwatch.Start();
         bool solved = Backtrack();
         if (!solved)
         {
-            throw new InvalidOperationException("Puzzle is unsolvable or incomplete.");
+            throw new UnsolvableSudokuException("Puzzle is unsolvable or incomplete.");
         }
     }
+
     /// <summary>
-    /// Backtracking that checks elapsed time to avoid exceeding 1 second.
+    /// Backtrack with recussin until the sudoku is solved, 
+    /// if cannot be solved, return false
     /// </summary>
+    /// <param name="emptyCellIndex">Index inside the board of the next cell to check</param>
+    /// <returns>True if it was solved</returns>
+    /// <exception cref="TimeoutException">Thrown if took more than 1 sec to solve</exception>
     private bool Backtrack(int emptyCellIndex = 0)
     {
-        // If we exceed the time limit, throw an exception
-        if (stopwatch.ElapsedMilliseconds > TimeLimitMilliseconds)
+        BacktrackCallAmount++;
+
+        // Only check if it took more than 1 sec even 1000 calls to improve performance by 8% on average
+        if (BacktrackCallAmount % _CheckFrequency == 0 && _stopwatch.ElapsedMilliseconds > _TimeLimitMilliseconds)
         {
             throw new TimeoutException("Puzzle took more than 1 second to solve.");
         }
 
-        // meaning board is now solved
-        if (emptyCellIndex == board.EmptyCells.Count)
+        // Meaning board is solved
+        if (emptyCellIndex == _board.EmptyCellsIndexes.Count)
         {
             return true;
         }
 
         // Pick the next empty cell
-        int cellNumber = board.EmptyCells[emptyCellIndex];
-         
+        int cellNumber = _board.FindLeastOptionsCellIndex();
+        if (cellNumber == -1)
+        {
+            return false;
+        }
+
         // Try digits 1-9
         for (int digit = 1; digit <= BoardSize; digit++)
         {
-            if (board.IsSafeCell(cellNumber, digit))
+            if (_board.IsSafeCell(cellNumber, digit))
             {
-                board.PlaceDigit(cellNumber, digit);
+                _board.PlaceDigit(cellNumber, digit);
 
                 if (Backtrack(emptyCellIndex + 1))
                 {
                     return true;
                 }
 
-                board.RemoveDigit(cellNumber, digit);
+                _board.RemoveDigit(cellNumber, digit);
             }
         }
-
         return false;
     }
 }

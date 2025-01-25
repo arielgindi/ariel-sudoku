@@ -17,7 +17,7 @@ public static class SudokuEngine
     /// <exception cref="InvalidOperationException">
     /// Thrown if the puzzle is unsolvable.
     /// </exception>
-    public static string SolveSudoku(string puzzleString)
+    public static (string solvedPuzzle, int backtrackCallAmount) SolveSudoku(string puzzleString)
     {
         // 1. Parse into a SudokuBoard.
         SudokuBoard board = new(puzzleString);
@@ -26,8 +26,9 @@ public static class SudokuEngine
         SudokuSolver solver = new(board);
         solver.Solve();
 
-        // 4. Convert the solved board back to string.
+        // 3. Convert the solved board back to string.
         string solvedPuzzle = board.ToString();
-        return solvedPuzzle;
+        int backtrackCallAmount = solver.BacktrackCallAmount;
+        return (solvedPuzzle, backtrackCallAmount);
     }
 }
