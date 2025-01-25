@@ -20,12 +20,23 @@ public static class Constants
     public static readonly (int row, int col, int box)[] CellCoordinates;
 
 
-    // These arrays help us quickly find all cells for each row, column, or box
+    // Arrays that holds all cells in a specific row, column, or box
     // For example: if you CellsInBox[5] (which is box number 4), you will get
     // An array containing all of the cellIndexes inside that box
     public static readonly int[][] CellsInRow = new int[BoardSize][];
     public static readonly int[][] CellsInCol = new int[BoardSize][];
     public static readonly int[][] CellsInBox = new int[BoardSize][];
+
+    // Bitmask that store as int an mask that is the same as if the cell
+    // Was the same if cell could contain any digit
+    // For example: if BoardSize == 4 than AllPossibiliteDigitsMask is 00011110
+    public static readonly int AllPossibleDigitsMask = ((1 << BoardSize) - 1) << 1;
+   
+    /// <summary>
+    /// Store all cells that share the same row, column, or box with each cell.
+    /// </summary>
+
+    public static readonly int[][] CellNeighbors = new int[CellCount][];
 
     /// <summary>
     /// Static constractor that only run one before access any constant inside this file
@@ -60,5 +71,25 @@ public static class Constants
             CellsInCol[col][row] = cellIndex;
             CellsInBox[box][indexInsideBox] = cellIndex;
         }
+
+        for (int cellIndex = 0; cellIndex < CellCount; cellIndex++)
+        {
+            (int row, int col, int box) = CellCoordinates[cellIndex];
+
+            HashSet<int> neighbors =
+            [                
+                // Add (row, col, box) neighbors
+                .. CellsInRow[row],
+                .. CellsInCol[col],
+                .. CellsInBox[box],
+            ];
+
+            // Remove the cell itself, because he is not his neighbors
+            neighbors.Remove(cellIndex);
+
+            // Store the peer set as an array
+            CellNeighbors[cellIndex] = [.. neighbors];
+        }
     }
 }
+

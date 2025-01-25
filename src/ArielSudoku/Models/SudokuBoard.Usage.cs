@@ -18,17 +18,22 @@ public sealed partial class SudokuBoard
     // Each cell has a bitmask of valid digits (bits 1..BoardSize).
     private readonly int[] _cellMasks = new int[CellCount];
 
-    // Priority queue storing (cellIndex, numberOfValidDigits).
-    private readonly PriorityQueue<int, int> _cellsQueue = new();
+    // Buckets to store cell indexes by how many valid digits they currently have.
+    // For example: if cell index 55 has 3 valid options, index 55 will be in list in _buckets[3] 
+    private readonly List<int>[] _buckets = new List<int>[BoardSize + 1];
 
-    // Bitmask that store as int an mask that is the same as if the cell
-    // Was the same if cell could contain any digit
-    // For example: if BoardSize == 4 than AllPossibiliteDigitsMask is 00011110
-    private readonly int AllPossibleDigitsMask = ((1 << BoardSize) - 1) << 1;
+    // Tracks how many possibilities each cell has,
+    // For example: if cell index 55 has 3 valid options, cell[55] = 3
+    private readonly int[] _cellPossCount = new int[CellCount];
 
     private void SetUsageTracking()
     {
-        // save usage for each non empty cell
+        // Init buckets before placing any digits
+        for (int i = 0; i < _buckets.Length; i++)
+        {
+            _buckets[i] = [];
+        }
+
         for (int cellIndex = 0; cellIndex < CellCount; cellIndex++)
         {
             char cell = this[cellIndex];
@@ -45,7 +50,6 @@ public sealed partial class SudokuBoard
                 }
 
                 PlaceDigit(cellIndex, digit);
-
                 continue;
             }
             EmptyCellsIndexes.Add(cellIndex);
@@ -98,11 +102,7 @@ public sealed partial class SudokuBoard
         _rowMask[row] = ClearBit(_rowMask[row], digit);
         _colMask[col] = ClearBit(_colMask[col], digit);
         _boxMask[box] = ClearBit(_boxMask[box], digit);
-
-        // Make sure we recalculate possibilities now
-        UpdateAffectedCells(cellNumber);
     }
-
 
     /// <summary>
     /// Returns the index of the cell with the fewest valid digits, 
@@ -110,18 +110,21 @@ public sealed partial class SudokuBoard
     /// </summary>
     public int FindLeastOptionsCellIndex()
     {
-        while (_cellsQueue.Count > 0)
+        // Searching from bucket[1] up to bucket[BoardSize].
+        // Than try to find the first non empty bucket is the cell with the fewest options.
+        for (int i = 1; i <= BoardSize; i++)
         {
-            // This create two new int: 'cellIndex' and 'possCount'.
-            // 'cellIndex' is the cell's position,
-            // and 'possCount' is how many digits were possible when passed earlier toqueued.
-            _cellsQueue.TryDequeue(out int cellIndex, out int possCount);
-
-            // If it's an empty cell and the number of possible digits per cell == 'possCount'
-            // This mean nothing changed for this cell from last time return cell index.
-            if (this[cellIndex] == '0' && CountBits(_cellMasks[cellIndex]) == possCount)
+            while (_buckets[i].Count > 0)
             {
-                return cellIndex;
+                int lastIndex = _buckets[i].Count - 1;
+                int cellIndex = _buckets[i][lastIndex];
+                _buckets[i].RemoveAt(lastIndex);
+
+                // If cell empty and has i possibilities, return it
+                if (this[cellIndex] == '0' && CountBits(_cellMasks[cellIndex]) == i)
+                {
+                    return cellIndex;
+                }
             }
         }
         // Did not find any empty cell with any possibilities
@@ -130,12 +133,15 @@ public sealed partial class SudokuBoard
 
     private void InitializePossibilities()
     {
+        // For each empty cell, calculate its bitmask and put it in the correct bucket
         for (int cellIndex = 0; cellIndex < CellCount; cellIndex++)
         {
             if (this[cellIndex] == '0')
             {
                 _cellMasks[cellIndex] = CalculateCellMask(cellIndex);
-                _cellsQueue.Enqueue(cellIndex, CountBits(_cellMasks[cellIndex]));
+                int possCount = CountBits(_cellMasks[cellIndex]);
+                _cellPossCount[cellIndex] = possCount;
+                _buckets[possCount].Add(cellIndex);
             }
         }
     }
@@ -147,42 +153,28 @@ public sealed partial class SudokuBoard
         return AllPossibleDigitsMask & ~combinedMask;
     }
 
-
     private void UpdateAffectedCells(int cellIndex)
     {
-        // Using an HashSet to remove duplication and O(1) access
-        // For example: if there is a cell that was effected by row and by call, 
-        // it will only add it once
-        HashSet<int> affectedCells = [];
-        (int rowIndex, int colIndex, int boxIndex) = CellCoordinates[cellIndex];
-
-        // Add all cells in the same row
-        foreach (int cell in CellsInRow[rowIndex])
+        // Loop through the precomputed peers of this cell
+        foreach (int affectedCellIndex in CellNeighbors[cellIndex])
         {
-            affectedCells.Add(cell);
-        }
-        foreach (int cell in CellsInCol[colIndex])
-        {
-            affectedCells.Add(cell);
-        }
-        foreach (int cell in CellsInBox[boxIndex])
-        {
-            affectedCells.Add(cell);
-        }
-
-        // Recalculate each affected cell
-        foreach (int affectedCellIndex in affectedCells)
-        {
+            // If a peer is empty, recompute his possibilities
             if (this[affectedCellIndex] == '0')
             {
                 _cellMasks[affectedCellIndex] = CalculateCellMask(affectedCellIndex);
-                int possCount = CountBits(_cellMasks[affectedCellIndex]);
-                if (possCount > 0)
+                int newNumberOfPossibilities = CountBits(_cellMasks[affectedCellIndex]);
+
+                // Remove from the old bucket and add to the new one
+                int oldNumberOfPossibilities = _cellPossCount[affectedCellIndex];
+                _buckets[oldNumberOfPossibilities].Remove(affectedCellIndex);
+
+                _cellPossCount[affectedCellIndex] = newNumberOfPossibilities;
+
+                if (newNumberOfPossibilities >= 0 && newNumberOfPossibilities <= BoardSize)
                 {
-                    _cellsQueue.Enqueue(affectedCellIndex, possCount);
+                    _buckets[newNumberOfPossibilities].Add(affectedCellIndex);
                 }
             }
         }
-
     }
 }
