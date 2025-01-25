@@ -1,4 +1,5 @@
-﻿using ArielSudoku.Models;
+﻿using ArielSudoku.Exceptions;
+using ArielSudoku.Models;
 using System.Diagnostics;
 
 internal class SudokuSolver
@@ -8,6 +9,7 @@ internal class SudokuSolver
     private readonly Stopwatch _stopwatch;
     private const int _TimeLimitMilliseconds = 1000;
     private const int _CheckFrequency = 1000;
+
     public SudokuSolver(SudokuBoard sudokuBoard)
     {
         _board = sudokuBoard;
@@ -17,13 +19,14 @@ internal class SudokuSolver
     /// <summary>
     /// Try to solve the board up to 1 sec
     /// </summary>
-    /// <exception cref="InvalidOperationException">Thrown if puzzle cannot be solve</exception>
+    /// <exception cref="UnsolvableSudokuException">Thrown if puzzle cannot be solve</exception>
     public void Solve()
     {
+        _stopwatch.Start();
         bool solved = Backtrack();
         if (!solved)
         {
-            throw new InvalidOperationException("Puzzle is unsolvable or incomplete.");
+            throw new UnsolvableSudokuException("Puzzle is unsolvable or incomplete.");
         }
     }
 

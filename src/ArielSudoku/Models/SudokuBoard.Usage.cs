@@ -1,8 +1,8 @@
 ﻿namespace ArielSudoku.Models;
 
+using ArielSudoku.Exceptions;
 using static ArielSudoku.Common.Constants;
 using static ArielSudoku.SudokuHelpers;
-using System.Numerics;
 
 /// <summary>
 /// Remember row, colum and box usage of 
@@ -29,16 +29,26 @@ public sealed partial class SudokuBoard
     private void SetUsageTracking()
     {
         // save usage for each non empty cell
-        for (int cellNumber = 0; cellNumber < CellCount; cellNumber++)
+        for (int cellIndex = 0; cellIndex < CellCount; cellIndex++)
         {
-            char cell = this[cellNumber];
+            char cell = this[cellIndex];
             if (cell != '0')
             {
                 int digit = cell - '0';
-                PlaceDigit(cellNumber, digit);
+                if (!IsSafeCell(cellIndex, digit))
+                {
+                    (int row, int col, int _) = CellCoordinates[cellIndex];
+                    throw new SudokuInvalidDigitException(
+                        $"Invalid sudoku board: the digit {digit} at ({row},{col}) " +
+                        "conflicts with existing digits."
+                    );
+                }
+
+                PlaceDigit(cellIndex, digit);
+
                 continue;
             }
-            EmptyCellsIndexes.Add(cellNumber);
+            EmptyCellsIndexes.Add(cellIndex);
         }
 
         InitializePossibilities();
@@ -88,7 +98,11 @@ public sealed partial class SudokuBoard
         _rowMask[row] = ClearBit(_rowMask[row], digit);
         _colMask[col] = ClearBit(_colMask[col], digit);
         _boxMask[box] = ClearBit(_boxMask[box], digit);
+
+        // Make sure we recalculate possibilities now
+        UpdateAffectedCells(cellNumber);
     }
+
 
     /// <summary>
     /// Returns the index of the cell with the fewest valid digits, 
@@ -140,33 +154,23 @@ public sealed partial class SudokuBoard
         // For example: if there is a cell that was effected by row and by call, 
         // it will only add it once
         HashSet<int> affectedCells = [];
-        (int rowIndex, int colIndex, int _) = CellCoordinates[cellIndex];
+        (int rowIndex, int colIndex, int boxIndex) = CellCoordinates[cellIndex];
 
         // Add all cells in the same row
-        int startRow = rowIndex * BoardSize;
-        for (int i = 0; i < BoardSize; i++)
+        foreach (int cell in CellsInRow[rowIndex])
         {
-            affectedCells.Add(startRow + i);
+            affectedCells.Add(cell);
+        }
+        foreach (int cell in CellsInCol[colIndex])
+        {
+            affectedCells.Add(cell);
+        }
+        foreach (int cell in CellsInBox[boxIndex])
+        {
+            affectedCells.Add(cell);
         }
 
-        // Add all cells in the same col
-        for (int i = 0; i < BoardSize; i++)
-        {
-            affectedCells.Add(i * BoardSize + colIndex);
-        }
-
-        // Add all cells in the same box
-        int boxRow = (rowIndex / BoxSize) * BoxSize;
-        int boxCol = (colIndex / BoxSize) * BoxSize;
-        for (int r = 0; r < BoxSize; r++)
-        {
-            for (int c = 0; c < BoxSize; c++)
-            {
-                affectedCells.Add((boxRow + r) * BoardSize + (boxCol + c));
-            }
-        }
-
-        // Recalculate each cell mask and if needed
+        // Recalculate each affected cell
         foreach (int affectedCellIndex in affectedCells)
         {
             if (this[affectedCellIndex] == '0')

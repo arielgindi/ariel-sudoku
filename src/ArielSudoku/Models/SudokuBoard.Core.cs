@@ -1,7 +1,7 @@
 ﻿namespace ArielSudoku.Models;
 
-using static ArielSudoku.SudokuHelpers;
 using static ArielSudoku.Common.Constants;
+using ArielSudoku.Exceptions;
 
 /// <summary>
 /// A 9x9 Sudoku board stored as an array of chars.
@@ -34,7 +34,7 @@ public sealed partial class SudokuBoard
             int col = CellCoordinates[cellNumber].col;
             if (ch < '0' || ch > (char)('0' + BoardSize))
             {
-                throw new FormatException(
+                throw new SudokuInvalidDigitException(
                     $"Invalid board: '{ch}' at cell ({row},{col}). " +
                     $"Allowed characters are '0'-'{BoardSize}' or '.'."
                 );
