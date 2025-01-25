@@ -1,4 +1,4 @@
-﻿using System;
+﻿using ArielSudoku.UI;
 
 namespace ArielSudoku
 {

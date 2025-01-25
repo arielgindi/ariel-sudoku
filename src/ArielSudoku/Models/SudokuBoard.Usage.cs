@@ -1,8 +1,8 @@
 ﻿namespace ArielSudoku.Models;
 
+using ArielSudoku.Exceptions;
 using static ArielSudoku.Common.Constants;
 using static ArielSudoku.SudokuHelpers;
-using System.Numerics;
 
 /// <summary>
 /// Remember row, colum and box usage of 
@@ -29,16 +29,26 @@ public sealed partial class SudokuBoard
     private void SetUsageTracking()
     {
         // save usage for each non empty cell
-        for (int cellNumber = 0; cellNumber < CellCount; cellNumber++)
+        for (int cellIndex = 0; cellIndex < CellCount; cellIndex++)
         {
-            char cell = this[cellNumber];
+            char cell = this[cellIndex];
             if (cell != '0')
             {
                 int digit = cell - '0';
-                PlaceDigit(cellNumber, digit);
+                if (!IsSafeCell(cellIndex, digit))
+                {
+                    (int row, int col, int _) = CellCoordinates[cellIndex];
+                    throw new SudokuInvalidDigitException(
+                        $"Invalid sudoku board: the digit {digit} at ({row},{col}) " +
+                        "conflicts with existing digits."
+                    );
+                }
+
+                PlaceDigit(cellIndex, digit);
+
                 continue;
             }
-            EmptyCellsIndexes.Add(cellNumber);
+            EmptyCellsIndexes.Add(cellIndex);
         }
 
         InitializePossibilities();
@@ -88,7 +98,11 @@ public sealed partial class SudokuBoard
         _rowMask[row] = ClearBit(_rowMask[row], digit);
         _colMask[col] = ClearBit(_colMask[col], digit);
         _boxMask[box] = ClearBit(_boxMask[box], digit);
+
+        // Make sure we recalculate possibilities now
+        UpdateAffectedCells(cellNumber);
     }
+
 
     /// <summary>
     /// Returns the index of the cell with the fewest valid digits, 
