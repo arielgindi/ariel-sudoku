@@ -198,4 +198,23 @@ public sealed partial class SudokuBoard
         return true;
     }
 
+    public bool HasSingleOption(int cellIndex)
+    {
+        if (this[cellIndex] != '0') return false;
+        return CountBits(_cellMasks[cellIndex]) == 1;
+    }
+
+    public int GetSingleCandidate(int cellIndex)
+    {
+        int mask = _cellMasks[cellIndex];
+        for (int digit = 1; digit <= BoardSize; digit++)
+        {
+            int bit = 1 << digit;
+            if ((mask & bit) != 0)
+            {
+                return digit;
+            }
+        }
+        return 0;
+    }
 }

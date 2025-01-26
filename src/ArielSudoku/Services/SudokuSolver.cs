@@ -23,11 +23,34 @@ internal class SudokuSolver
     public void Solve()
     {
         _stopwatch.Start();
+
+        ApplyNakedSingles();
+
         bool solved = Backtrack();
         if (!solved)
         {
             throw new UnsolvableSudokuException("Puzzle is unsolvable or incomplete.");
         }
+    }
+
+    // Try to place digits in cells that have exactly one possibility
+    private void ApplyNakedSingles()
+    {
+        bool changed;
+        do
+        {
+            changed = false;
+            for (int i = 0; i < CellCount; i++)
+            {
+                if (_board[i] == '0' && _board.HasSingleOption(i))
+                {
+                    int digit = _board.GetSingleCandidate(i);
+                    _board.PlaceDigit(i, digit);
+                    changed = true;
+                }
+            }
+        }
+        while (changed);
     }
 
     /// <summary>
