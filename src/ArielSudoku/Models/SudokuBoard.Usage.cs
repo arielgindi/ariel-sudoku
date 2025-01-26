@@ -2,7 +2,7 @@
 
 using ArielSudoku.Exceptions;
 using static ArielSudoku.Common.Constants;
-using static ArielSudoku.SudokuHelpers;
+using static ArielSudoku.Common.SudokuHelpers;
 
 /// <summary>
 /// Remember row, colum and box usage of 
@@ -13,7 +13,6 @@ public sealed partial class SudokuBoard
     private readonly int[] _rowMask = new int[BoardSize];
     private readonly int[] _colMask = new int[BoardSize];
     private readonly int[] _boxMask = new int[BoardSize];
-    public List<int> EmptyCellsIndexes { get; } = [];
 
     // Each cell has a bitmask of valid digits (bits 1..BoardSize).
     private readonly int[] _cellMasks = new int[CellCount];
@@ -52,7 +51,6 @@ public sealed partial class SudokuBoard
                 PlaceDigit(cellIndex, digit);
                 continue;
             }
-            EmptyCellsIndexes.Add(cellIndex);
         }
 
         InitializePossibilities();
@@ -177,4 +175,27 @@ public sealed partial class SudokuBoard
             }
         }
     }
+
+    public bool IsSolved()
+    {
+        // Now check if each row, column, and box has the correct mask
+        for (int i = 0; i < BoardSize; i++)
+        {
+            if (_rowMask[i] != AllPossibleDigitsMask)
+            {
+                return false;
+            }
+            if (_colMask[i] != AllPossibleDigitsMask)
+            {
+                return false;
+            }
+            if (_boxMask[i] != AllPossibleDigitsMask)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
 }

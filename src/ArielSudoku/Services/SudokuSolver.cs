@@ -48,7 +48,7 @@ internal class SudokuSolver
         }
 
         // Meaning board is solved
-        if (emptyCellIndex == _board.EmptyCellsIndexes.Count)
+        if (_board.IsSolved())
         {
             return true;
         }

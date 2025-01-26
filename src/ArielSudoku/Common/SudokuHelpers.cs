@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace ArielSudoku;
+namespace ArielSudoku.Common;
 
 public static class SudokuHelpers
 {
@@ -8,7 +8,7 @@ public static class SudokuHelpers
     /// Convert digit to his correct bitmask value
     /// For example: 1 becomes 0001, 2 becomes 0010 etc
     /// </summary>
-    public static int GetMaskForDigit(int digit) => 1 << (digit);
+    public static int GetMaskForDigit(int digit) => 1 << digit;
     /// <summary>
     /// Add a digit to the mask by setting its bit
     /// For example: If mask is 1000 and digit is 2 it return 1010
