@@ -24,7 +24,7 @@ internal class SudokuSolver
     {
         _stopwatch.Start();
 
-        ApplyNakedSingles();
+        ApplyNakedSingles(null);
 
         bool solved = Backtrack();
         if (!solved)
@@ -34,23 +34,35 @@ internal class SudokuSolver
     }
 
     // Try to place digits in cells that have exactly one possibility
-    private void ApplyNakedSingles()
+    private void ApplyNakedSingles(Stack<(int cellIndex, int digit)>? humanTacticsStack)
     {
         bool changed;
         do
         {
             changed = false;
-            for (int i = 0; i < CellCount; i++)
+            for (int cellIndex = 0; cellIndex < CellCount; cellIndex++)
             {
-                if (_board[i] == '0' && _board.HasSingleOption(i))
+                if (_board[cellIndex] == '0' && _board.HasSingleOption(cellIndex))
                 {
-                    int digit = _board.GetSingleCandidate(i);
-                    _board.PlaceDigit(i, digit);
+                    int digit = _board.GetOnlyPossibleDigit(cellIndex);
+                    _board.PlaceDigit(cellIndex, digit);
                     changed = true;
+
+                    // Push it not null
+                    humanTacticsStack?.Push((cellIndex, digit));
                 }
             }
         }
         while (changed);
+    }
+
+    private void UndoHumanTacticsMoves(Stack<(int cellIndex, int digit)> humanTacticsStack)
+    {
+        while (humanTacticsStack.Count > 0)
+        {
+            (int cellIndex, int digit) = humanTacticsStack.Pop();
+            _board.RemoveDigit(cellIndex, digit);
+        }
     }
 
     /// <summary>
@@ -90,11 +102,15 @@ internal class SudokuSolver
             {
                 _board.PlaceDigit(cellNumber, digit);
 
-                if (Backtrack(emptyCellIndex + 1))
+                Stack<(int cellIndex, int digit)> humanTacticsStack = new();
+                ApplyNakedSingles(humanTacticsStack);
+
+                if (_board.IsSolved() || Backtrack(emptyCellIndex + 1))
                 {
                     return true;
                 }
 
+                UndoHumanTacticsMoves(humanTacticsStack);
                 _board.RemoveDigit(cellNumber, digit);
             }
         }

@@ -1,6 +1,7 @@
 ﻿namespace ArielSudoku.Models;
 
 using ArielSudoku.Exceptions;
+using System.Collections.Generic;
 using static ArielSudoku.Common.Constants;
 using static ArielSudoku.Common.SudokuHelpers;
 
@@ -43,13 +44,12 @@ public sealed partial class SudokuBoard
                 {
                     (int row, int col, int _) = CellCoordinates[cellIndex];
                     throw new SudokuInvalidDigitException(
-                        $"Invalid sudoku board: the digit {digit} at ({row},{col}) " +
-                        "conflicts with existing digits."
-                    );
+                      $"Invalid sudoku board: the digit {digit} at ({row},{col}) " +
+                      "conflicts with existing digits."
+                  );
                 }
 
                 PlaceDigit(cellIndex, digit);
-                continue;
             }
         }
 
@@ -100,6 +100,8 @@ public sealed partial class SudokuBoard
         _rowMask[row] = ClearBit(_rowMask[row], digit);
         _colMask[col] = ClearBit(_colMask[col], digit);
         _boxMask[box] = ClearBit(_boxMask[box], digit);
+
+        RefreshPossibilitiesAfterRemoval(cellNumber);
     }
 
     /// <summary>
@@ -154,24 +156,18 @@ public sealed partial class SudokuBoard
     private void UpdateAffectedCells(int cellIndex)
     {
         // Loop through the precomputed peers of this cell
-        foreach (int affectedCellIndex in CellNeighbors[cellIndex])
+        foreach (int neighborIndex in CellNeighbors[cellIndex])
         {
             // If a peer is empty, recompute his possibilities
-            if (this[affectedCellIndex] == '0')
+            if (this[neighborIndex] == '0')
             {
-                _cellMasks[affectedCellIndex] = CalculateCellMask(affectedCellIndex);
-                int newNumberOfPossibilities = CountBits(_cellMasks[affectedCellIndex]);
+                int oldPossCount = _cellPossCount[neighborIndex];
+                _buckets[oldPossCount].Remove(neighborIndex);
 
-                // Remove from the old bucket and add to the new one
-                int oldNumberOfPossibilities = _cellPossCount[affectedCellIndex];
-                _buckets[oldNumberOfPossibilities].Remove(affectedCellIndex);
-
-                _cellPossCount[affectedCellIndex] = newNumberOfPossibilities;
-
-                if (newNumberOfPossibilities >= 0 && newNumberOfPossibilities <= BoardSize)
-                {
-                    _buckets[newNumberOfPossibilities].Add(affectedCellIndex);
-                }
+                _cellMasks[neighborIndex] = CalculateCellMask(neighborIndex);
+                int newPossCount = CountBits(_cellMasks[neighborIndex]);
+                _cellPossCount[neighborIndex] = newPossCount;
+                _buckets[newPossCount].Add(neighborIndex);
             }
         }
     }
@@ -204,7 +200,7 @@ public sealed partial class SudokuBoard
         return CountBits(_cellMasks[cellIndex]) == 1;
     }
 
-    public int GetSingleCandidate(int cellIndex)
+    public int GetOnlyPossibleDigit(int cellIndex)
     {
         int mask = _cellMasks[cellIndex];
         for (int digit = 1; digit <= BoardSize; digit++)
@@ -216,5 +212,26 @@ public sealed partial class SudokuBoard
             }
         }
         return 0;
+    }
+
+    private void RefreshPossibilitiesAfterRemoval(int cellIndex)
+    {
+        // Remove this cell from the bucket it was in before
+        int prevPossibilitiesCount = _cellPossCount[cellIndex];
+        if (prevPossibilitiesCount >= 0 && prevPossibilitiesCount <= BoardSize)
+        {
+            _buckets[prevPossibilitiesCount].Remove(cellIndex);
+        }
+
+
+        // Calculate how many digits can fit in cellMasks
+        _cellMasks[cellIndex] = CalculateCellMask(cellIndex);
+        int updatedPossibleDigitCount = CountBits(_cellMasks[cellIndex]);
+        _cellPossCount[cellIndex] = updatedPossibleDigitCount;
+
+        // Update cell bucket
+        _buckets[updatedPossibleDigitCount].Add(cellIndex);
+
+        UpdateAffectedCells(cellIndex);
     }
 }
