@@ -1,5 +1,5 @@
 ﻿using ArielSudoku.Models;
-
+using ArielSudoku.Services;
 public static class SudokuEngine
 {
     /// <summary>
