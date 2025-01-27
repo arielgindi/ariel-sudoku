@@ -25,7 +25,7 @@ public sealed partial class SudokuSolver
     {
         _stopwatch.Start();
 
-        ApplyNakedSingles(null);
+        ApplyHumanTactics(null);
 
         bool solved = Backtrack();
         if (!solved)

@@ -2,27 +2,34 @@
 
 public sealed partial class SudokuSolver
 {
-    // Try to place digits in cells that have exactly one possibility
-    private void ApplyNakedSingles(Stack<(int cellIndex, int digit)>? humanTacticsStack)
+
+    private void ApplyHumanTactics(Stack<(int cellIndex, int digit)>? humanTacticsStack)
     {
-        bool changed;
+        bool isChanged;
         do
         {
-            changed = false;
-            for (int cellIndex = 0; cellIndex < CellCount; cellIndex++)
-            {
-                if (_board[cellIndex] == '0' && _board.HasSingleOption(cellIndex))
-                {
-                    int digit = _board.GetOnlyPossibleDigit(cellIndex);
-                    _board.PlaceDigit(cellIndex, digit);
-                    changed = true;
+            isChanged = ApplyNakedSingles(humanTacticsStack);
+        }
+        while (isChanged);
+    }
 
-                    // Push if not null
-                    humanTacticsStack?.Push((cellIndex, digit));
-                }
+    // Try to place digits in cells that have exactly one possibility
+    private bool ApplyNakedSingles(Stack<(int cellIndex, int digit)>? humanTacticsStack)
+    {
+        bool isChanged = false;
+        for (int cellIndex = 0; cellIndex < CellCount; cellIndex++)
+        {
+            if (_board[cellIndex] == '0' && _board.HasSingleOption(cellIndex))
+            {
+                int digit = _board.GetOnlyPossibleDigit(cellIndex);
+                _board.PlaceDigit(cellIndex, digit);
+                isChanged = true;
+
+                // Push if not null
+                humanTacticsStack?.Push((cellIndex, digit));
             }
         }
-        while (changed);
+        return isChanged;
     }
 
     private void UndoHumanTacticsMoves(Stack<(int cellIndex, int digit)> humanTacticsStack)

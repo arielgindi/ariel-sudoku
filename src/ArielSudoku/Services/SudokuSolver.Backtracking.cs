@@ -1,7 +1,4 @@
-﻿
-using System.Diagnostics;
-
-namespace ArielSudoku.Services;
+﻿namespace ArielSudoku.Services;
 
 public sealed partial class SudokuSolver
 {
@@ -43,7 +40,7 @@ public sealed partial class SudokuSolver
                 _board.PlaceDigit(cellNumber, digit);
 
                 Stack<(int cellIndex, int digit)> humanTacticsStack = new();
-                ApplyNakedSingles(humanTacticsStack);
+                ApplyHumanTactics(humanTacticsStack);
 
                 if (_board.IsSolved() || Backtrack(emptyCellIndex + 1))
                 {
