@@ -10,15 +10,14 @@ public sealed partial class SudokuBoard
 {
     private readonly char[] _cells = new char[CellCount];
 
-    public SudokuBoard(string input)
+    public SudokuBoard(string puzzleString)
     {
-        if (input == null)
-            throw new ArgumentNullException(nameof(input));
+        ArgumentNullException.ThrowIfNull(puzzleString);
 
-        if (input.Length != CellCount)
-            throw new ArgumentException($"Board must be exactly {CellCount} characters.");
+        if (puzzleString.Length != CellCount)
+            throw new InputInvalidLengthException($"Input must be {CellCount} characters, but it is {puzzleString.Length}.");
 
-        InitializeBoardFromString(input);
+        InitializeBoardFromString(puzzleString);
         SetUsageTracking();
     }
 

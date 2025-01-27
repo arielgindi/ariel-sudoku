@@ -1,4 +1,5 @@
 ﻿using ArielSudoku.Exceptions;
+using ArielSudoku.Services;
 using System.Diagnostics;
 
 namespace ArielSudoku.UI;
@@ -53,28 +54,15 @@ internal static class CliHandler
             try
             {
                 string? userInput = Console.ReadLine()?.Trim();
+                (string puzzleString, bool showMore) = ParseInput(userInput);
 
-                if (string.IsNullOrWhiteSpace(userInput))
+                if (string.IsNullOrWhiteSpace(puzzleString))
                 {
                     continue;
-                }
-
-                // Clear the screen on 'clear'
-                if (userInput.Equals("clear", StringComparison.OrdinalIgnoreCase))
-                {
-                    ClearScreenAndShowWelcome();
-                    continue;
-                }
-
-                (string sudokuPuzzle, bool showMore) = ParseInput(userInput);
-
-                if (sudokuPuzzle.Length != CellCount)
-                {
-                    throw new InputInvalidLengthException($"Input must be {CellCount} characters, but it is {sudokuPuzzle.Length}.");
                 }
 
                 Stopwatch stopwatch = Stopwatch.StartNew();
-                (string solvedPuzzle, int backtrackCallAmount) = SudokuEngine.SolveSudoku(sudokuPuzzle);
+                (string solvedPuzzle, int backtrackCallAmount) = SudokuEngine.SolveSudoku(puzzleString);
                 stopwatch.Stop();
 
                 Console.WriteLine($"{GREEN}Result{RESET}: {YELLOW}{solvedPuzzle}{RESET} ({stopwatch.Elapsed.TotalSeconds:F3}s)");
@@ -98,13 +86,32 @@ internal static class CliHandler
     /// <returns>The sudoku string, and the flags if exist</returns>
     /// <exception cref="SudokuInvalidFlagException">Thrown if Flag doesnt match valid flags</exception>
     /// <exception cref="TooManyArgumentsException">Thrown if too mang flags are used</exception>
-    static (string, bool) ParseInput(string userInput)
+    static (string puzzleString, bool showMore) ParseInput(string userInput)
     {
         string[] parts = userInput?.Split(' ', StringSplitOptions.RemoveEmptyEntries) ?? [];
 
+        
 
         if (parts.Length == 0)
         {
+            return ("", false);
+        }
+
+        // Clear the screen
+        if (parts[0].Equals("clear", StringComparison.OrdinalIgnoreCase))
+        {
+            ClearScreenAndShowWelcome();
+            return ("", false);
+        }
+
+        if (parts[0] == "read")
+        {
+            if (parts.Length < 2)
+                throw new MissingFilePathException(
+                    "Missing file path! after 'read' command you have to write your'e file path" +
+                    "for example 'read SudokuPuzzles.txt'");
+
+            SudokuFilesEngine.ProccessSudokuFile(parts[1]);
             return ("", false);
         }
 
