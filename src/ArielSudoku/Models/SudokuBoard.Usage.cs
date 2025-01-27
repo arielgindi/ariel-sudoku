@@ -26,6 +26,8 @@ public sealed partial class SudokuBoard
     // For example: if cell index 55 has 3 valid options, cell[55] = 3
     private readonly int[] _cellPossCount = new int[CellCount];
 
+    // save each cell position in its current bucket
+    private readonly int[] _bucketPositions = new int[CellCount];
     private void SetUsageTracking()
     {
         // Init buckets before placing any digits
@@ -119,6 +121,7 @@ public sealed partial class SudokuBoard
                 int lastIndex = _buckets[i].Count - 1;
                 int cellIndex = _buckets[i][lastIndex];
                 _buckets[i].RemoveAt(lastIndex);
+                _bucketPositions[cellIndex] = -1;
 
                 // If cell empty and has i possibilities, return it
                 if (this[cellIndex] == '0' && CountBits(_cellMasks[cellIndex]) == i)
@@ -133,6 +136,11 @@ public sealed partial class SudokuBoard
 
     private void InitializePossibilities()
     {
+        for (int i = 0; i < CellCount; i++)
+        {
+            _bucketPositions[i] = -1;
+        }
+
         // For each empty cell, calculate its bitmask and put it in the correct bucket
         for (int cellIndex = 0; cellIndex < CellCount; cellIndex++)
         {
@@ -142,6 +150,7 @@ public sealed partial class SudokuBoard
                 int possCount = CountBits(_cellMasks[cellIndex]);
                 _cellPossCount[cellIndex] = possCount;
                 _buckets[possCount].Add(cellIndex);
+                _bucketPositions[cellIndex] = _buckets[possCount].Count - 1;
             }
         }
     }
@@ -162,12 +171,22 @@ public sealed partial class SudokuBoard
             if (this[neighborIndex] == '0')
             {
                 int oldPossCount = _cellPossCount[neighborIndex];
-                _buckets[oldPossCount].Remove(neighborIndex);
+                int oldPos = _bucketPositions[neighborIndex];
+                if (oldPos >= 0 && oldPos < _buckets[oldPossCount].Count && _buckets[oldPossCount][oldPos] == neighborIndex)
+                {
+                    int lastPos = _buckets[oldPossCount].Count - 1;
+                    int lastCell = _buckets[oldPossCount][lastPos];
+                    _buckets[oldPossCount][oldPos] = lastCell;
+                    _bucketPositions[lastCell] = oldPos;
+                    _buckets[oldPossCount].RemoveAt(lastPos);
+                }
 
                 _cellMasks[neighborIndex] = CalculateCellMask(neighborIndex);
                 int newPossCount = CountBits(_cellMasks[neighborIndex]);
                 _cellPossCount[neighborIndex] = newPossCount;
+
                 _buckets[newPossCount].Add(neighborIndex);
+                _bucketPositions[neighborIndex] = _buckets[newPossCount].Count - 1;
             }
         }
     }
@@ -220,17 +239,23 @@ public sealed partial class SudokuBoard
         int prevPossibilitiesCount = _cellPossCount[cellIndex];
         if (prevPossibilitiesCount >= 0 && prevPossibilitiesCount <= BoardSize)
         {
-            _buckets[prevPossibilitiesCount].Remove(cellIndex);
+            int oldPos = _bucketPositions[cellIndex];
+            if (oldPos >= 0 && oldPos < _buckets[prevPossibilitiesCount].Count && _buckets[prevPossibilitiesCount][oldPos] == cellIndex)
+            {
+                int lastPos = _buckets[prevPossibilitiesCount].Count - 1;
+                int lastCell = _buckets[prevPossibilitiesCount][lastPos];
+                _buckets[prevPossibilitiesCount][oldPos] = lastCell;
+                _bucketPositions[lastCell] = oldPos;
+                _buckets[prevPossibilitiesCount].RemoveAt(lastPos);
+            }
         }
 
-
-        // Calculate how many digits can fit in cellMasks
         _cellMasks[cellIndex] = CalculateCellMask(cellIndex);
         int updatedPossibleDigitCount = CountBits(_cellMasks[cellIndex]);
         _cellPossCount[cellIndex] = updatedPossibleDigitCount;
 
-        // Update cell bucket
         _buckets[updatedPossibleDigitCount].Add(cellIndex);
+        _bucketPositions[cellIndex] = _buckets[updatedPossibleDigitCount].Count - 1;
 
         UpdateAffectedCells(cellIndex);
     }
