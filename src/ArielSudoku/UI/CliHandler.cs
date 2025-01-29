@@ -1,4 +1,5 @@
-﻿using ArielSudoku.Exceptions;
+using ArielSudoku.Exceptions;
+using ArielSudoku.Exceptions;
 using ArielSudoku.Services;
 using System.Diagnostics;
 
@@ -91,6 +92,7 @@ internal static class CliHandler
         string[] parts = userInput?.Split(' ', StringSplitOptions.RemoveEmptyEntries) ?? [];
 
         
+
 
         if (parts.Length == 0)
         {

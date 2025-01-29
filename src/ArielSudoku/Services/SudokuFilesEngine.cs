@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
+using System.Diagnostics;
 
 namespace ArielSudoku.Services;
 
@@ -40,4 +41,5 @@ public static class SudokuFilesEngine
         // return output file path
         return outputPath;
     }
+  }
 }
