@@ -109,7 +109,7 @@ internal static class CliHandler
                     "Missing file path! after 'read' command you have to write your'e file path " +
                     "for example 'read SudokuPuzzles.txt'");
 
-            ProcessFileFromCLI(parts[1], true);
+            ProcessFileFromCLI(parts[1]);
             return ("", false);
         }
 
@@ -128,14 +128,27 @@ internal static class CliHandler
         throw new TooManyArgumentsException("Too many arguments. Provide a puzzle and optionally the '--more' flag.");
     }
 
-    private static void ProcessFileFromCLI(string filePath, bool showMore)
+    private static void ProcessFileFromCLI(string filePath)
     {
+        Stopwatch totalStopwatch = new();
+        totalStopwatch.Start();
+
         SudokuFileHandler fileHandler = new(filePath);
-        if (showMore)
-        {
-            Console.WriteLine($"{GREEN}File Details{RESET}");
-            Console.WriteLine($"Total puzzles: {fileHandler.TotalPuzzles}");
-            Console.WriteLine($"Puzzle #{fileHandler.MaxTimePuzzleIndex}, longest to solve ({fileHandler.MaxTimeMs:ms}s)");
-        }
+
+        totalStopwatch.Stop();
+
+        Log();
+        Log($"{CYAN}========== File processing summary =========={RESET}");
+        Log($"{GREEN}File input path        :{RESET} {filePath}");
+        Log($"{GREEN}Output file            :{RESET} {fileHandler.OutputPath}");
+        Log($"{GREEN}Number of puzzles      :{RESET} {fileHandler.TotalPuzzles}");
+        Log($"{GREEN}Avg time to solve      :{RESET} {fileHandler.AvgTimeMs:F3}ms");
+        Log($"{GREEN}Longest time to solve  :{RESET} {fileHandler.MaxTimeMs:F3}ms (puzzle #{fileHandler.MaxTimePuzzleIndex})");
+        Log($"{GREEN}Max backtracking calls :{RESET} {fileHandler.MaxBacktrackCalls} (puzzle #{fileHandler.MaxBacktrackCallsIndex})");
+        Log($"{GREEN}Avg backtraking calls  :{RESET} {fileHandler.AvgBacktrackingCalls:F3}");
+        Log($"{GREEN}Total time taken       :{RESET} {totalStopwatch.Elapsed.TotalMilliseconds:F3}ms");
+        Log($"{CYAN}============================================={RESET}");
+        Log();
     }
+    private static void Log(string? message = "") => Console.WriteLine(message);
 }

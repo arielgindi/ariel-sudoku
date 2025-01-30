@@ -4,25 +4,33 @@ namespace ArielSudoku.IO
 {
     public class SudokuFileHandler
     {
-        // Tracking status
+        // Arrays containing puzzles from input and output
+        private readonly string[] _inputPuzzles;
+        private readonly string[] _solvedPuzzles;
+
+
+        private double _totalProcessingTimeMs = 0;
+        private int _totalBacktrackingCalls = 0;
+
+        
+        // Used for statistics
+        public string OutputPath { get; private set; } = string.Empty;
         public int TotalPuzzles { get; private set; }
         public double MaxTimeMs { get; private set; }
         public int MaxTimePuzzleIndex { get; private set; }
-        public string OutputPath { get; private set; } = "";
+        public int MaxBacktrackCalls { get; private set; }
+        public int MaxBacktrackCallsIndex { get; private set; }
+        public double AvgTimeMs => TotalPuzzles > 0 ? _totalProcessingTimeMs / TotalPuzzles : 0;
+        public double AvgBacktrackingCalls => TotalPuzzles > 0 ? (double)_totalBacktrackingCalls / TotalPuzzles : 0;
 
-
-
-        // Array containing all puzzles from the input file
-        private readonly string[] _inputPuzzles;
-        // Array containing all result from the input file
-        private readonly string[] _solvedPuzzles;
 
         /// <summary>
         /// Solve from a given file all sudokus puzzles, 
         /// And keep the result inside a new output file
         /// </summary>
-        /// <param name="filePath"></param>
-        /// <exception cref="FileNotFoundException"></exception>
+        /// <param name="filePath" />
+        /// <exception cref="FileNotFoundException"/>
+        /// <exception cref="Exception">Thrown if the file does not contain any puzzles</exception>
         public SudokuFileHandler(string filePath)
         {
             if (!File.Exists(filePath))
@@ -33,51 +41,62 @@ namespace ArielSudoku.IO
             _inputPuzzles = File.ReadAllLines(filePath);
             TotalPuzzles = _inputPuzzles.Length;
             _solvedPuzzles = new string[TotalPuzzles];
-            ProcessSudokuFile();
-        }
 
-        /// <summary>
-        /// Solve all puzzles from the file and 
-        /// </summary>
-        /// <exception cref="Exception">Thrown if file does not contain any puzzles</exception>
-        private void ProcessSudokuFile()
-        {
             if (TotalPuzzles == 0)
             {
                 throw new Exception("File cannot contain zero puzzles");
             }
 
-            Console.WriteLine("Start processing all puzzles.....");
+            ProcessSudokuFile();
+        }
+
+        /// <summary>
+        /// Solve all puzzles from the file
+        /// </summary>
+        private void ProcessSudokuFile()
+        {
             for (int puzzleIndex = 0; puzzleIndex < TotalPuzzles; puzzleIndex++)
             {
                 ProcessSinglePuzzle(puzzleIndex);
             }
 
             CreateOutputFile();
-            Console.WriteLine($"Processing puzzles file completed successfully, output file location: ${OutputPath} ");
         }
 
         /// <summary>
-        /// Solve a single puzzle, and update the traking stats
+        /// Solve a single puzzle, and update the tracking status
         /// </summary>
         /// <param name="puzzleIndex">Index of puzzle to solve (in _solvedPuzzles array)</param>
         private void ProcessSinglePuzzle(int puzzleIndex)
         {
             string puzzleString = _inputPuzzles[puzzleIndex].Trim();
 
-            Stopwatch singlePuzzleWatch = new();
-            singlePuzzleWatch.Start();
+            Stopwatch watch = new();
+            watch.Start();
 
-            (string solvedPuzzle, int _) = SudokuEngine.SolveSudoku(puzzleString);
+            (string solvedPuzzle, int backtrackCalls) = SudokuEngine.SolveSudoku(puzzleString);
 
-            singlePuzzleWatch.Stop();
+            watch.Stop();
+            UpdateStatistics(puzzleIndex, solvedPuzzle, backtrackCalls, watch.Elapsed.TotalMilliseconds);
+        }
+
+
+        private void UpdateStatistics(int puzzleIndex, string solvedPuzzle, int backtrackCalls, double processingTimeMs)
+        {
             _solvedPuzzles[puzzleIndex] = solvedPuzzle;
+            _totalProcessingTimeMs += processingTimeMs;
+            _totalBacktrackingCalls += backtrackCalls;
 
-            double currentPuzzleMs = singlePuzzleWatch.Elapsed.TotalMilliseconds;
-            if (currentPuzzleMs > MaxTimeMs)
+            if (processingTimeMs > MaxTimeMs)
             {
-                MaxTimeMs = currentPuzzleMs;
+                MaxTimeMs = processingTimeMs;
                 MaxTimePuzzleIndex = puzzleIndex + 1;
+            }
+
+            if (backtrackCalls > MaxBacktrackCalls)
+            {
+                MaxBacktrackCalls = backtrackCalls;
+                MaxBacktrackCallsIndex = puzzleIndex + 1;
             }
         }
 
