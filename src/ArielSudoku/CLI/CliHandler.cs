@@ -1,12 +1,11 @@
 using ArielSudoku.Exceptions;
-using ArielSudoku.Exceptions;
-using ArielSudoku.Services;
+using ArielSudoku.IO;
 using System.Diagnostics;
 
-namespace ArielSudoku.UI;
+namespace ArielSudoku.CLI;
 
 /// <summary>
-/// Handles CLI input for the Sudoku solver.
+/// Handles CLI input for the Sudoku solver
 /// </summary>
 internal static class CliHandler
 {
@@ -18,7 +17,7 @@ internal static class CliHandler
     private const string YELLOW = "\x1B[33m";
 
     /// <summary>
-    /// Prints a short welcome message.
+    /// Print a short welcome message
     /// </summary>
     private static void PrintWelcome()
     {
@@ -91,9 +90,6 @@ internal static class CliHandler
     {
         string[] parts = userInput?.Split(' ', StringSplitOptions.RemoveEmptyEntries) ?? [];
 
-        
-
-
         if (parts.Length == 0)
         {
             return ("", false);
@@ -113,7 +109,7 @@ internal static class CliHandler
                     "Missing file path! after 'read' command you have to write your'e file path " +
                     "for example 'read SudokuPuzzles.txt'");
 
-            SudokuFilesEngine.ProccessSudokuFile(parts[1]);
+            ProcessFileFromCLI(parts[1], true);
             return ("", false);
         }
 
@@ -130,5 +126,16 @@ internal static class CliHandler
         }
 
         throw new TooManyArgumentsException("Too many arguments. Provide a puzzle and optionally the '--more' flag.");
+    }
+
+    private static void ProcessFileFromCLI(string filePath, bool showMore)
+    {
+        SudokuFileHandler fileHandler = new(filePath);
+        if (showMore)
+        {
+            Console.WriteLine($"{GREEN}File Details{RESET}");
+            Console.WriteLine($"Total puzzles: {fileHandler.TotalPuzzles}");
+            Console.WriteLine($"Puzzle #{fileHandler.MaxTimePuzzleIndex}, longest to solve ({fileHandler.MaxTimeMs:ms}s)");
+        }
     }
 }

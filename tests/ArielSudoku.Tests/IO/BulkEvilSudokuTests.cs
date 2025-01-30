@@ -1,4 +1,4 @@
-﻿namespace ArielSudoku.Tests.Bulk;
+﻿namespace ArielSudoku.Tests.IO;
 
 public class BulkEvilSudokuTests : SudokuTestsBase
 {
