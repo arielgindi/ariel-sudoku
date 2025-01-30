@@ -25,8 +25,8 @@ internal static class CliHandler
         Console.WriteLine($"{CYAN}================================={RESET}");
         Console.WriteLine($"{CYAN}{BOLD}          Gindi Sudoku{RESET}");
         Console.WriteLine($"{CYAN}================================={RESET}");
-        Console.WriteLine($"Use flags: {BOLD}{CYAN}--m{RESET} or {BOLD}{CYAN}--more{RESET} for more info");
-        Console.WriteLine($"Available Commands: {BOLD}{CYAN}exit{RESET}, {BOLD}{CYAN}clear{RESET}");
+        Console.WriteLine($"Use flags: {BOLD}{CYAN}-m{RESET} or {BOLD}{CYAN}--more{RESET} for more info");
+        Console.WriteLine($"Available Commands: {BOLD}{CYAN}exit{RESET}, {BOLD}{CYAN}clear{RESET}, {BOLD}{CYAN}read{RESET}");
         Console.WriteLine();
     }
 
@@ -110,7 +110,7 @@ internal static class CliHandler
         {
             if (parts.Length < 2)
                 throw new MissingFilePathException(
-                    "Missing file path! after 'read' command you have to write your'e file path" +
+                    "Missing file path! after 'read' command you have to write your'e file path " +
                     "for example 'read SudokuPuzzles.txt'");
 
             SudokuFilesEngine.ProccessSudokuFile(parts[1]);
@@ -124,7 +124,7 @@ internal static class CliHandler
 
         if (parts.Length == 2)
         {
-            if (parts[1] == "--m" || parts[1] == "--more")
+            if (parts[1] == "-m" || parts[1] == "--more")
                 return (parts[0], true);
             throw new SudokuInvalidFlagException("Invalid flag. do you mean '--more'?");
         }

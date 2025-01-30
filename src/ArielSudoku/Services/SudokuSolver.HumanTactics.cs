@@ -17,7 +17,7 @@ public sealed partial class SudokuSolver
         bool isChanged = false;
         for (int cellIndex = 0; cellIndex < CellCount; cellIndex++)
         {
-            if (_board[cellIndex] == '0' && _board.HasSingleOption(cellIndex))
+            if (_board[cellIndex] == 0 && _board.HasSingleOption(cellIndex))
             {
                 int digit = _board.GetOnlyPossibleDigit(cellIndex);
                 _board.PlaceDigit(cellIndex, digit);
@@ -68,7 +68,7 @@ public sealed partial class SudokuSolver
             // search for each empty cell, if he could be put there place it
             foreach (int cellIndex in cellsInUnit)
             {
-                if (_board[cellIndex] == '0' && _board.IsSafeCell(cellIndex, digit))
+                if (_board[cellIndex] == 0 && _board.IsSafeCell(cellIndex, digit))
                 {
                     possibleCell = cellIndex;
                     count++;
