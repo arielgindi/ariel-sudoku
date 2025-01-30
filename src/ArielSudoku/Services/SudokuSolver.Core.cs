@@ -30,7 +30,7 @@ public sealed partial class SudokuSolver
         bool solved = Backtrack();
         if (!solved)
         {
-            throw new UnsolvableSudokuException("Puzzle is unsolvable or incomplete.");
+            throw new UnsolvableSudokuException("Puzzle is unsolvable");
         }
     }
 }
