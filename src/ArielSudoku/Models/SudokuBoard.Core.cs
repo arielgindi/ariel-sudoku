@@ -8,7 +8,7 @@ using ArielSudoku.Exceptions;
 /// </summary>
 public sealed partial class SudokuBoard
 {
-    private readonly char[] _cells = new char[CellCount];
+    private readonly int[] _cells = new int[CellCount];
 
     public SudokuBoard(string puzzleString)
     {
@@ -27,25 +27,35 @@ public sealed partial class SudokuBoard
         {
             char ch = input[cellNumber];
             if (ch == '.') ch = '0';
+            int digit = ch - '0';
 
-            // Ensure c is between '0' - '9'
-            int row = CellCoordinates[cellNumber].row;
-            int col = CellCoordinates[cellNumber].col;
-            if (ch < '0' || ch > (char)('0' + BoardSize))
+
+            if (digit < 0 || BoardSize < digit)
             {
+                // Ensure c is between '0' - '9'
+                int row = CellCoordinates[cellNumber].row;
+                int col = CellCoordinates[cellNumber].col;
                 throw new SudokuInvalidDigitException(
-                    $"Invalid board: '{ch}' at cell ({row},{col}). " +
+                    $"Invalid board: '{digit}' at cell ({row},{col}). " +
                     $"Allowed characters are '0'-'{BoardSize}' or '.'."
                 );
             }
 
-            _cells[cellNumber] = ch;
+            _cells[cellNumber] = digit;
         }
     }
-    public char this[int cellNumber]
+    public int this[int cellNumber]
     {
         get => _cells[cellNumber];
         set => _cells[cellNumber] = value;
     }
-    public override string ToString() => new(_cells);
+    public override string ToString()
+    {
+        char[] result = new char[CellCount];
+        for (int i = 0; i < CellCount; i++)
+        {
+            result[i] = (char)(_cells[i] + '0');
+        }
+        return new string(result);
+    }
 }

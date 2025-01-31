@@ -1,12 +1,11 @@
 using ArielSudoku.Exceptions;
-using ArielSudoku.Exceptions;
-using ArielSudoku.Services;
+using ArielSudoku.IO;
 using System.Diagnostics;
 
-namespace ArielSudoku.UI;
+namespace ArielSudoku.CLI;
 
 /// <summary>
-/// Handles CLI input for the Sudoku solver.
+/// Handles CLI input for the Sudoku solver
 /// </summary>
 internal static class CliHandler
 {
@@ -18,15 +17,15 @@ internal static class CliHandler
     private const string YELLOW = "\x1B[33m";
 
     /// <summary>
-    /// Prints a short welcome message.
+    /// Print a short welcome message
     /// </summary>
     private static void PrintWelcome()
     {
         Console.WriteLine($"{CYAN}================================={RESET}");
         Console.WriteLine($"{CYAN}{BOLD}          Gindi Sudoku{RESET}");
         Console.WriteLine($"{CYAN}================================={RESET}");
-        Console.WriteLine($"Use flags: {BOLD}{CYAN}--m{RESET} or {BOLD}{CYAN}--more{RESET} for more info");
-        Console.WriteLine($"Available Commands: {BOLD}{CYAN}exit{RESET}, {BOLD}{CYAN}clear{RESET}");
+        Console.WriteLine($"Use flags: {BOLD}{CYAN}-m{RESET} or {BOLD}{CYAN}--more{RESET} for more info");
+        Console.WriteLine($"Available Commands: {BOLD}{CYAN}exit{RESET}, {BOLD}{CYAN}clear{RESET}, {BOLD}{CYAN}read{RESET}");
         Console.WriteLine();
     }
 
@@ -91,9 +90,6 @@ internal static class CliHandler
     {
         string[] parts = userInput?.Split(' ', StringSplitOptions.RemoveEmptyEntries) ?? [];
 
-        
-
-
         if (parts.Length == 0)
         {
             return ("", false);
@@ -110,10 +106,10 @@ internal static class CliHandler
         {
             if (parts.Length < 2)
                 throw new MissingFilePathException(
-                    "Missing file path! after 'read' command you have to write your'e file path" +
+                    "Missing file path! after 'read' command you have to write your'e file path " +
                     "for example 'read SudokuPuzzles.txt'");
 
-            SudokuFilesEngine.ProccessSudokuFile(parts[1]);
+            ProcessFileFromCLI(parts[1]);
             return ("", false);
         }
 
@@ -124,11 +120,35 @@ internal static class CliHandler
 
         if (parts.Length == 2)
         {
-            if (parts[1] == "--m" || parts[1] == "--more")
+            if (parts[1] == "-m" || parts[1] == "--more")
                 return (parts[0], true);
             throw new SudokuInvalidFlagException("Invalid flag. do you mean '--more'?");
         }
 
         throw new TooManyArgumentsException("Too many arguments. Provide a puzzle and optionally the '--more' flag.");
     }
+
+    private static void ProcessFileFromCLI(string filePath)
+    {
+        Stopwatch totalStopwatch = new();
+        totalStopwatch.Start();
+
+        SudokuFileHandler fileHandler = new(filePath);
+
+        totalStopwatch.Stop();
+
+        Log();
+        Log($"{CYAN}========== File processing summary =========={RESET}");
+        Log($"{GREEN}File input path        :{RESET} {filePath}");
+        Log($"{GREEN}Output file            :{RESET} {fileHandler.OutputPath}");
+        Log($"{GREEN}Number of puzzles      :{RESET} {fileHandler.TotalPuzzles}");
+        Log($"{GREEN}Avg time to solve      :{RESET} {fileHandler.AvgTimeMs:F3}ms");
+        Log($"{GREEN}Longest time to solve  :{RESET} {fileHandler.MaxTimeMs:F3}ms (puzzle #{fileHandler.MaxTimePuzzleIndex})");
+        Log($"{GREEN}Max backtracking calls :{RESET} {fileHandler.MaxBacktrackCalls} (puzzle #{fileHandler.MaxBacktrackCallsIndex})");
+        Log($"{GREEN}Avg backtraking calls  :{RESET} {fileHandler.AvgBacktrackingCalls:F3}");
+        Log($"{GREEN}Total time taken       :{RESET} {totalStopwatch.Elapsed.TotalMilliseconds:F3}ms");
+        Log($"{CYAN}============================================={RESET}");
+        Log();
+    }
+    private static void Log(string? message = "") => Console.WriteLine(message);
 }

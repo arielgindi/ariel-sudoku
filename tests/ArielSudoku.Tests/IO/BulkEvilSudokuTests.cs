@@ -1,4 +1,4 @@
-﻿namespace ArielSudoku.Tests.Bulk;
+﻿namespace ArielSudoku.Tests.IO;
 
 public class BulkEvilSudokuTests : SudokuTestsBase
 {
@@ -6,7 +6,7 @@ public class BulkEvilSudokuTests : SudokuTestsBase
     public void SolveAllHardSudokusFromFile()
     {
         string testOutputFolder = AppDomain.CurrentDomain.BaseDirectory;
-        string filePath = Path.Combine(testOutputFolder, "Bulk", "Puzzles", "EvilSudokusList.txt");
+        string filePath = Path.Combine(testOutputFolder, "IO", "Puzzles", "EvilSudokusList.txt");
 
         Assert.True(File.Exists(filePath), $"Missing file: {filePath}");
 

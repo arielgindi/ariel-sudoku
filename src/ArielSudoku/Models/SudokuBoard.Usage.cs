@@ -38,10 +38,9 @@ public sealed partial class SudokuBoard
 
         for (int cellIndex = 0; cellIndex < CellCount; cellIndex++)
         {
-            char cell = this[cellIndex];
-            if (cell != '0')
+            int digit = this[cellIndex];
+            if (digit != 0)
             {
-                int digit = cell - '0';
                 if (!IsSafeCell(cellIndex, digit))
                 {
                     (int row, int col, int _) = CellCoordinates[cellIndex];
@@ -78,7 +77,7 @@ public sealed partial class SudokuBoard
     /// </summary>
     public void PlaceDigit(int cellIndex, int digit)
     {
-        this[cellIndex] = (char)(digit + '0');
+        this[cellIndex] = digit;
 
         int row, col, box;
         (row, col, box) = CellCoordinates[cellIndex];
@@ -94,7 +93,7 @@ public sealed partial class SudokuBoard
     /// </summary>
     public void RemoveDigit(int cellNumber, int digit)
     {
-        this[cellNumber] = '0';
+        this[cellNumber] = 0;
 
         int row, col, box;
         (row, col, box) = CellCoordinates[cellNumber];
@@ -124,7 +123,7 @@ public sealed partial class SudokuBoard
                 _bucketPositions[cellIndex] = -1;
 
                 // If cell empty and has i possibilities, return it
-                if (this[cellIndex] == '0' && CountBits(_cellMasks[cellIndex]) == i)
+                if (this[cellIndex] == 0 && CountBits(_cellMasks[cellIndex]) == i)
                 {
                     return cellIndex;
                 }
@@ -144,7 +143,7 @@ public sealed partial class SudokuBoard
         // For each empty cell, calculate its bitmask and put it in the correct bucket
         for (int cellIndex = 0; cellIndex < CellCount; cellIndex++)
         {
-            if (this[cellIndex] == '0')
+            if (this[cellIndex] == 0)
             {
                 _cellMasks[cellIndex] = CalculateCellMask(cellIndex);
                 int possCount = CountBits(_cellMasks[cellIndex]);
@@ -168,7 +167,7 @@ public sealed partial class SudokuBoard
         foreach (int neighborIndex in CellNeighbors[cellIndex])
         {
             // If a peer is empty, recompute his possibilities
-            if (this[neighborIndex] == '0')
+            if (this[neighborIndex] == 0)
             {
                 int oldPossCount = _cellPossCount[neighborIndex];
                 int oldPos = _bucketPositions[neighborIndex];
@@ -215,7 +214,7 @@ public sealed partial class SudokuBoard
 
     public bool HasSingleOption(int cellIndex)
     {
-        if (this[cellIndex] != '0') return false;
+        if (this[cellIndex] != 0) return false;
         return CountBits(_cellMasks[cellIndex]) == 1;
     }
 
