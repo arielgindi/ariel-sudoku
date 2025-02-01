@@ -70,6 +70,7 @@ public sealed partial class SudokuBoard
     /// </summary>
     public void PlaceDigit(int cellIndex, int digit)
     {
+        PlaceDigitAmount++;
         this[cellIndex] = digit;
         (int row, int col, int box) = CellCoordinates[cellIndex];
 
@@ -161,7 +162,6 @@ public sealed partial class SudokuBoard
         }
         return 0;
     }
-
     /// <summary>
     /// Updates the possibility masks for neighbors of the given cell
     /// </summary>
@@ -176,7 +176,6 @@ public sealed partial class SudokuBoard
             }
         }
     }
-
     /// <summary>
     /// Get a mask containing all valid digits of a cell index
     /// </summary>
@@ -185,5 +184,61 @@ public sealed partial class SudokuBoard
         (int rowIndex, int colIndex, int boxIndex) = CellCoordinates[cellIndex];
         int combined = _rowMask[rowIndex] | _colMask[colIndex] | _boxMask[boxIndex];
         return AllPossibleDigitsMask & ~combined;
+    }
+    /// <summary>
+    /// Check if any cell has no valid digits or if a digit doesn't have any possibilites
+    /// This prevents continue to try solving a dead end path.
+    /// </summary>
+
+    public bool HasDeadEnd()
+    {
+        foreach (int emptyCellIndex in _emptyCells)
+        {
+            if (_possPerCell[emptyCellIndex] == 0)
+            {
+                return true;
+            }
+        }
+
+        for (int digit = 1; digit <= BoardSize; digit++)
+        {
+            int bit = GetMaskForDigit(digit);
+            if (HasNoSpotForDigit(CellsInRow, _rowMask, digit, bit)) return true;
+            if (HasNoSpotForDigit(CellsInCol, _colMask, digit, bit)) return true;
+            if (HasNoSpotForDigit(CellsInBox, _boxMask, digit, bit)) return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Check if a given digit can't be placed anywhere in a given unit
+    /// </summary>
+    private bool HasNoSpotForDigit(int[][] units, int[] usageMask, int digit, int bit)
+    {
+        for (int i = 0; i < BoardSize; i++)
+        {
+            if ((usageMask[i] & bit) == 0 && !CanDigitFit(units[i], digit))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    /// <summary>
+    /// Check if at least one empty cell in the unit can hold this digit
+    /// </summary>
+    private bool CanDigitFit(int[] cellsInUnit, int digit)
+    {
+        for (int i = 0; i < cellsInUnit.Length; i++)
+        {
+            int cellIndex = cellsInUnit[i];
+            if (_cells[cellIndex] == 0 && IsSafeCell(cellIndex, digit))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

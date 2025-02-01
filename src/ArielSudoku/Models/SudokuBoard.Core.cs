@@ -9,6 +9,7 @@ using ArielSudoku.Exceptions;
 public sealed partial class SudokuBoard
 {
     private readonly int[] _cells = new int[CellCount];
+    public int PlaceDigitAmount { get; private set; } = 0;
 
     public SudokuBoard(string puzzleString)
     {

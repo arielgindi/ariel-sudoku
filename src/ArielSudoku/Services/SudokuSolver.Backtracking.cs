@@ -38,9 +38,15 @@ public sealed partial class SudokuSolver
             if (_board.IsSafeCell(cellNumber, digit))
             {
                 _board.PlaceDigit(cellNumber, digit);
-
                 Stack<(int cellIndex, int digit)> humanTacticsStack = new();
                 ApplyHumanTactics(humanTacticsStack);
+
+                if (_board.HasDeadEnd())
+                {
+                    UndoHumanTacticsMoves(humanTacticsStack);
+                    _board.RemoveDigit(cellNumber, digit);
+                    continue;
+                }
 
                 if (_board.IsSolved() || Backtrack(emptyCellIndex + 1))
                 {

@@ -64,7 +64,6 @@ public sealed partial class SudokuSolver
         {
             int possibleCell = -1;
             int count = 0;
-
             // search for each empty cell, if he could be put there place it
             foreach (int cellIndex in cellsInUnit)
             {
