@@ -4,6 +4,26 @@
 /// </summary>
 public static class Constants
 {
+    /// <summary>
+    /// Is search made progress, did nothing, or found dead end
+    /// </summary>
+    public enum SearchStatus
+    {
+        /// <summary>
+        /// Mean placed at least one digit (good!)
+        /// </summary>
+        Found,   
+        /// <summary>
+        /// Mean no digits were placed
+        /// </summary>
+        NotFound,
+        /// <summary>
+        /// Mean there is a dead end, need to undo human tactics
+        /// and try another guess on backtracking, or throw if board has no solution 
+        /// </summary>
+        DeadEnd
+    }
+
     // Size of each sub-box, for example 3x3 for a 9x9 Sudoku
     // 3
     public static readonly int BoxSize = 3;
@@ -33,7 +53,7 @@ public static class Constants
     public static readonly int AllPossibleDigitsMask = ((1 << BoardSize) - 1) << 1;
    
     /// <summary>
-    /// Store all cells that share the same row, column, or box with each cell.
+    /// Store all cells that share the same (row, col, box) with each cell.
     /// </summary>
 
     public static readonly int[][] CellNeighbors = new int[CellCount][];
