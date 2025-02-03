@@ -241,4 +241,40 @@ public sealed partial class SudokuBoard
         }
         return false;
     }
+
+
+    /// <summary>
+    /// Healper function for ApplyHiddenSingles
+    /// Given a row, col or box to find a number that exist there only once
+    /// For example: if digit 6 is the only possibile digit in that row, it place it there
+    /// </summary>
+    public bool FindHiddenSinglesHealper(int[] cellsInUnit, Stack<(int cellIndex, int digit)>? humanTacticsStack)
+    {
+        bool isChanged = false;
+
+        for (int digit = 1; digit <= BoardSize; digit++)
+        {
+            int possibleCell = -1;
+            int count = 0;
+            // Search each empty cell, if its the only option place it there
+            foreach (int cellIndex in cellsInUnit)
+            {
+                if (this[cellIndex] == 0 && IsSafeCell(cellIndex, digit))
+                {
+                    possibleCell = cellIndex;
+                    count++;
+                    if (count > 1) break;
+                }
+            }
+
+            if (count == 1)
+            {
+                PlaceDigit(possibleCell, digit);
+                humanTacticsStack?.Push((possibleCell, digit));
+                isChanged = true;
+            }
+        }
+
+        return isChanged;
+    }
 }
