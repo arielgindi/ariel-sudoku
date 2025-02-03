@@ -37,6 +37,7 @@ public sealed partial class SudokuSolver
         if (!solved)
         {
             Console.WriteLine($"PlaceDigitAmount: {_board.PlaceDigitAmount}");
+            Console.WriteLine($"Time it took: {_stopwatch.Elapsed.TotalMilliseconds:N0} ms");
             throw new UnsolvableSudokuException("Puzzle is unsolvable");
         }
     }

@@ -43,15 +43,15 @@ public sealed partial class SudokuSolver
 
         for (int unitIndex = 0; unitIndex < BoardSize; unitIndex++)
         {
-            isChanged |= _board.FindHiddenSinglesHealper(CellsInRow[unitIndex], humanTacticsStack);
-            isChanged |= _board.FindHiddenSinglesHealper(CellsInCol[unitIndex], humanTacticsStack);
-            isChanged |= _board.FindHiddenSinglesHealper(CellsInBox[unitIndex], humanTacticsStack);
+            isChanged |= _board.FindHiddenSinglesInUnit(CellsInRow[unitIndex], humanTacticsStack);
+            isChanged |= _board.FindHiddenSinglesInUnit(CellsInCol[unitIndex], humanTacticsStack);
+            isChanged |= _board.FindHiddenSinglesInUnit(CellsInBox[unitIndex], humanTacticsStack);
         }
 
         return isChanged;
     }
 
-   
+
 
     private void UndoHumanTacticsMoves(Stack<(int cellIndex, int digit)> humanTacticsStack)
     {

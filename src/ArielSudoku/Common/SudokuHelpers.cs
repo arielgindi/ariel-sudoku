@@ -17,7 +17,7 @@ public static class SudokuHelpers
 
     /// <summary>
     /// Removes a digit from the mask by clearing its bit
-    /// For Example: If mask is 1100 and digit is 2 the result will be 1000
+    /// For example: If mask is 1100 and digit is 2 the result will be 1000
     /// </summary>
     public static int ClearBit(int mask, int digit) => mask & ~GetMaskForDigit(digit);
 
@@ -27,4 +27,16 @@ public static class SudokuHelpers
     /// <param name="mask"/>
     /// <returns>The number of bits inside the mask</returns>
     public static int CountBits(int mask) => BitOperations.PopCount((uint)mask);
+
+
+    /// <summary>
+    /// Convert digitBit for example: 1000 into digit 3 (because its index 3)
+    /// </summary>
+    /// <param name="digitAsBit">Bitmask with exactly one bit!</param>
+    public static int BitToDigit(int digitAsBit)
+    {
+        return BitOperations.TrailingZeroCount((uint)digitAsBit);
+    }
+
+    public static bool HasBitSet(int mask, int digit) => (mask & GetMaskForDigit(digit)) != 0;
 }
