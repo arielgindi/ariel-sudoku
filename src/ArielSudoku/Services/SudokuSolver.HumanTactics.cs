@@ -2,9 +2,25 @@
 
 public sealed partial class SudokuSolver
 {
+
     private void ApplyHumanTactics(Stack<(int cellIndex, int digit)>? humanTacticsStack)
     {
-        while (ApplyNakedSingles(humanTacticsStack) || ApplyHiddenSingles(humanTacticsStack)) { }
+        bool isChanged;
+        do
+        {
+            isChanged = false;
+
+            while (ApplyNakedSingles(humanTacticsStack))
+            {
+                isChanged = true;
+            }
+
+            if (ApplyHiddenSingles(humanTacticsStack))
+            {
+                isChanged = true;
+            }
+        }
+        while (isChanged);
     }
 
     /// <summary>
