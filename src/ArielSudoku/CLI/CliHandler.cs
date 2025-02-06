@@ -1,3 +1,4 @@
+using ArielSudoku.Common;
 using ArielSudoku.Exceptions;
 using ArielSudoku.IO;
 using System.Diagnostics;
@@ -65,7 +66,7 @@ internal static class CliHandler
                 (string solvedPuzzle, int backtrackCallAmount) = SudokuEngine.SolveSudoku(puzzleString);
                 stopwatch.Stop();
 
-                Console.WriteLine($"{GREEN}Result{RESET}: {YELLOW}{solvedPuzzle}{RESET} ({stopwatch.Elapsed.TotalSeconds:F3}s)");
+                Console.WriteLine($"{GREEN}Result{RESET}: {YELLOW}{solvedPuzzle}{RESET} ({SudokuHelpers.GetFormattedTime(stopwatch.Elapsed.TotalMilliseconds)})");
 
                 if (showMore)
                 {
@@ -142,11 +143,11 @@ internal static class CliHandler
         Log($"{GREEN}File input path        :{RESET} {filePath}");
         Log($"{GREEN}Output file            :{RESET} {fileHandler.OutputPath}");
         Log($"{GREEN}Number of puzzles      :{RESET} {fileHandler.TotalPuzzles}");
-        Log($"{GREEN}Avg time to solve      :{RESET} {fileHandler.AvgTimeMs:F3}ms");
-        Log($"{GREEN}Longest time to solve  :{RESET} {fileHandler.MaxTimeMs:F3}ms (puzzle #{fileHandler.MaxTimePuzzleIndex})");
+        Log($"{GREEN}Avg time to solve      :{RESET} {SudokuHelpers.GetFormattedTime(fileHandler.AvgTimeMs)}");
+        Log($"{GREEN}Longest time to solve  :{RESET} {SudokuHelpers.GetFormattedTime(fileHandler.MaxTimeMs)} (puzzle #{fileHandler.MaxTimePuzzleIndex})");
         Log($"{GREEN}Max backtracking calls :{RESET} {fileHandler.MaxBacktrackCalls} (puzzle #{fileHandler.MaxBacktrackCallsIndex})");
         Log($"{GREEN}Avg backtraking calls  :{RESET} {fileHandler.AvgBacktrackingCalls:F3}");
-        Log($"{GREEN}Total time taken       :{RESET} {totalStopwatch.Elapsed.TotalMilliseconds:F3}ms");
+        Log($"{GREEN}Total time taken       :{RESET} {SudokuHelpers.GetFormattedTime(totalStopwatch.Elapsed.TotalMilliseconds)}");
         Log($"{CYAN}============================================={RESET}");
         Log();
     }

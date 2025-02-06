@@ -33,10 +33,25 @@ public static class SudokuHelpers
     /// Convert digitBit for example: 1000 into digit 3 (because its index 3)
     /// </summary>
     /// <param name="digitAsBit">Bitmask with exactly one bit!</param>
-    public static int BitToDigit(int digitAsBit)
-    {
-        return BitOperations.TrailingZeroCount((uint)digitAsBit);
-    }
+    public static int BitToDigit(int digitAsBit) => BitOperations.TrailingZeroCount((uint)digitAsBit);
 
     public static bool HasBitSet(int mask, int digit) => (mask & GetMaskForDigit(digit)) != 0;
+
+    /// <summary>
+    /// Format milliseconds time into the correct unit
+    /// For example: 12345 ms, will be converted into '12.345 sec'
+    /// </summary>
+    /// <param name="timeInMs">Time in milliseconds</param>
+    /// <returns>String displying time in correct unit</returns>
+    public static string GetFormattedTime(double timeInMs)
+    {
+        if (timeInMs >= 1000)
+            // 1000 ms or more => seconds
+            return $"{timeInMs / 1000:F3} sec";
+        if (timeInMs < 1)
+            // Less than 1 ms => microseconds
+            return $"{timeInMs * 1000:F3} μs";
+        // Between 1 and 999.999 ms => milliseconds
+        return $"{timeInMs:F3} ms";
+    }
 }

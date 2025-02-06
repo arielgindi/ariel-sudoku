@@ -1,4 +1,5 @@
-﻿using ArielSudoku.Exceptions;
+﻿using ArielSudoku.Common;
+using ArielSudoku.Exceptions;
 using ArielSudoku.Models;
 using System.Diagnostics;
 namespace ArielSudoku.Services;
@@ -37,7 +38,7 @@ public sealed partial class SudokuSolver
         if (!solved)
         {
             Console.WriteLine($"PlaceDigitAmount: {_board.PlaceDigitAmount}");
-            Console.WriteLine($"Time it took: {_stopwatch.Elapsed.TotalMilliseconds:N0} ms");
+            Console.WriteLine($"Time it took: {SudokuHelpers.GetFormattedTime(_stopwatch.ElapsedMilliseconds)}");
             throw new UnsolvableSudokuException("Puzzle is unsolvable");
         }
     }
