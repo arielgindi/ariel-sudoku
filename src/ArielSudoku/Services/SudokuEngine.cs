@@ -4,19 +4,19 @@ using ArielSudoku.Services;
 public static class SudokuEngine
 {
     /// <summary>
-    /// Solves a Sudoku puzzle in one call.
+    /// Solves a Sudoku puzzle in one call
     /// </summary>
     /// <param name="puzzleString">
-    /// 81-character puzzle string where '0' indicates an empty cell.
+    /// Sudoku puzzle string where '0' indicates an empty cell
     /// </param>
     /// <returns>
-    /// The solved Sudoku puzzle as an 81-character string.
+    /// The solved Sudoku puzzle as an string
     /// </returns>
-    /// <exception cref="ArgumentException">
-    /// Thrown if <paramref name="puzzleString"/> is not 81 characters long.
+    /// <exception cref="InputInvalidLengthException">
+    /// Thrown if <paramref name="puzzleString"/> is not 81 characters long
     /// </exception>
-    /// <exception cref="InvalidOperationException">
-    /// Thrown if the puzzle is unsolvable.
+    /// <exception cref="UnsolvableSudokuException">
+    /// Thrown if the puzzle is unsolvable
     /// </exception>
     public static (string solvedPuzzle, int backtrackCallAmount) SolveSudoku(string puzzleString)
     {

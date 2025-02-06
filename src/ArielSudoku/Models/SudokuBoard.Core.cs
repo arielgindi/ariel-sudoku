@@ -36,7 +36,7 @@ public sealed partial class SudokuBoard
                 // Ensure c is between '0' - '9'
                 int row = CellCoordinates[cellNumber].row;
                 int col = CellCoordinates[cellNumber].col;
-                throw new SudokuInvalidDigitException(
+                throw new SudokuInvalidBoardException(
                     $"Invalid board: '{digit}' at cell ({row},{col}). " +
                     $"Allowed characters are '0'-'{BoardSize}' or '.'."
                 );

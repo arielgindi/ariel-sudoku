@@ -35,7 +35,7 @@ public sealed partial class SudokuBoard
                 if (!IsSafeCell(cellIndex, digit))
                 {
                     (int row, int col, int _) = CellCoordinates[cellIndex];
-                    throw new SudokuInvalidDigitException(
+                    throw new SudokuInvalidBoardException(
                         $"Invalid sudoku board: the digit {digit} at ({row},{col}) conflicts with existing digits."
                     );
                 }
