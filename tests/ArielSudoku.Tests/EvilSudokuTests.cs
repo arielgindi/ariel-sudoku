@@ -41,14 +41,4 @@ public class EvilSudokuTests : SudokuTestsBase
         string expectedSolution = "357948621821356947496721385549183276273465819618279453164532798932817564785694132";
         CheckPuzzleSolution(puzzle, expectedSolution);
     }
-
-
-    [Fact]
-    public void SolveEvilSudoku6()
-    {
-        // Difficulty: Super hard for backtraking
-        string puzzle = "050908600800006007006020000009000070203000809010000400000030700900800004005604030";
-        string expectedSolution = "357948621821356947496721385549183276273465819618279453164532798932817564785694132";
-        CheckPuzzleSolution(puzzle, expectedSolution);
-    }
 }
