@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using ArielSudoku.Exceptions;
+using System.Numerics;
 
 namespace ArielSudoku.Common;
 
@@ -53,5 +54,21 @@ public static class SudokuHelpers
             return $"{timeInMs * 1000:F3} μs";
         // Between 1 and 999.999 ms => milliseconds
         return $"{timeInMs:F3} ms";
+    }
+
+
+    public static int CalculateBoxSize(int puzzleLength)
+    {
+        return puzzleLength switch
+        {
+            1 => 1,    // 1×1
+            16 => 2,   // 4×4
+            81 => 3,   // 9×9
+            256 => 4,  // 16×16
+            625 => 5,  // 25×25
+            _ => throw new InputInvalidLengthException(
+                $"Puzzle length {puzzleLength} is not one of the recognized sizes (1,16,81,256,625)"
+            )
+        };
     }
 }

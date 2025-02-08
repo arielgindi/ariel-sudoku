@@ -1,5 +1,4 @@
 ﻿namespace ArielSudoku.Services;
-
 public sealed partial class SudokuSolver
 {
     /// <summary>
@@ -33,7 +32,7 @@ public sealed partial class SudokuSolver
         }
 
         // Try digits 1-9
-        for (int digit = 1; digit <= BoardSize; digit++)
+        for (int digit = 1; digit <= _constants.BoardSize; digit++)
         {
             if (_board.IsSafeCell(cellNumber, digit))
             {

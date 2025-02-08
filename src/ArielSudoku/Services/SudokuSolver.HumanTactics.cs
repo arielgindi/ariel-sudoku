@@ -31,7 +31,7 @@ public sealed partial class SudokuSolver
     private bool ApplyNakedSingles(Stack<(int cellIndex, int digit)>? humanTacticsStack)
     {
         bool isChanged = false;
-        for (int cellIndex = 0; cellIndex < CellCount; cellIndex++)
+        for (int cellIndex = 0; cellIndex < _constants.CellCount; cellIndex++)
         {
             if (_board[cellIndex] == 0 && _board.HasSingleOption(cellIndex))
             {
@@ -57,11 +57,11 @@ public sealed partial class SudokuSolver
     {
         bool isChanged = false;
 
-        for (int unitIndex = 0; unitIndex < BoardSize; unitIndex++)
+        for (int unitIndex = 0; unitIndex < _constants.BoardSize; unitIndex++)
         {
-            isChanged |= _board.FindHiddenSinglesInUnit(CellsInRow[unitIndex], humanTacticsStack);
-            isChanged |= _board.FindHiddenSinglesInUnit(CellsInCol[unitIndex], humanTacticsStack);
-            isChanged |= _board.FindHiddenSinglesInUnit(CellsInBox[unitIndex], humanTacticsStack);
+            isChanged |= _board.FindHiddenSinglesInUnit(_constants.CellsInRow[unitIndex], humanTacticsStack);
+            isChanged |= _board.FindHiddenSinglesInUnit(_constants.CellsInCol[unitIndex], humanTacticsStack);
+            isChanged |= _board.FindHiddenSinglesInUnit(_constants.CellsInBox[unitIndex], humanTacticsStack);
         }
 
         return isChanged;

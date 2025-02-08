@@ -12,11 +12,13 @@ public sealed partial class SudokuSolver
     private readonly Stopwatch _stopwatch;
     private const int _TimeLimitMilliseconds = 1000000;
     private const int _CheckFrequency = 1000;
+    private readonly Constants _constants;
 
     public SudokuSolver(SudokuBoard sudokuBoard)
     {
-        _board = sudokuBoard;
         _stopwatch = new Stopwatch();
+        _board = sudokuBoard;
+        _constants = _board._constants; 
     }
 
     /// <summary>

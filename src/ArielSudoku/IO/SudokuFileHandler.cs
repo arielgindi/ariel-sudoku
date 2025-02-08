@@ -69,6 +69,7 @@ namespace ArielSudoku.IO
         /// <param name="puzzleIndex">Index of puzzle to solve (in _solvedPuzzles array)</param>
         private void ProcessSinglePuzzle(int puzzleIndex)
         {
+            Console.WriteLine("Puzzle index " + puzzleIndex );
             string puzzleString = _inputPuzzles[puzzleIndex].Trim();
 
             Stopwatch watch = new();
