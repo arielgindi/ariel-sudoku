@@ -1,7 +1,8 @@
-using ArielSudoku.Common;
+﻿using ArielSudoku.Common;
 using ArielSudoku.Exceptions;
 using ArielSudoku.IO;
 using System.Diagnostics;
+using System.Text;
 
 namespace ArielSudoku.CLI;
 
@@ -153,44 +154,45 @@ internal static class CliHandler
     }
     private static void Log(string? message = "") => Console.WriteLine(message);
 
-    public static void PrintPuzzle(string puzzleString)
+    public static void PrintPuzzle(string puzzle)
     {
-        int boxSize = SudokuHelpers.CalculateBoxSize(puzzleString.Length);
-        int boardSize = boxSize * boxSize;
+        int boxSize = SudokuHelpers.CalculateBoxSize(puzzle.Length);
+        Constants constants = ConstantsManager.GetOrCreateConstants(boxSize);
+        int width = 2 * constants.BoardSize + 2 * (boxSize - 1) + 1;
 
-        for (int row = 0; row < boardSize; row++)
+        void PrintRow(char left, char between, char right)
         {
-            if (row % boxSize == 0)
-            {
-                PrintPuzzleLine(boxSize);
-            }
-            Console.Write("|");
-            for (int col = 0; col < boardSize; col++)
-            {
-                int index = row * boardSize + col;
-                Console.Write(puzzleString[index]);
-                if (col == boardSize - 1)
-                {
-                    Console.Write("|");
-                }
-                else if ((col + 1) % boxSize == 0)
-                {
-                    Console.Write("|");
-                }
-                else
-                {
-                    Console.Write(" ");
-                }
-            }
-            Console.WriteLine();
+            Console.WriteLine(left  + new string(between, width) + right);
         }
-        PrintPuzzleLine(boxSize);
-    }
 
-    static void PrintPuzzleLine(int boxSize)
-    {
-        int boardSize = boxSize * boxSize;
-        int lineLength = 1 + boardSize * 2;
-        Console.WriteLine(new string('-', lineLength));
+        // Top row
+        PrintRow('╔', '═', '╗');
+        for (int row = 0; row < constants.BoardSize; row++)
+        {
+            // Mid row
+            if (row > 0 && row % boxSize == 0) PrintRow('╠', '═', '╣');
+
+            // Start each row with a left border
+            Console.Write("║");
+
+            for (int col = 0; col < constants.BoardSize; col++)
+            {
+                Console.Write(" ");
+                Console.Write(puzzle[row * constants.BoardSize + col]);
+
+                if (col < constants.BoardSize - 1 && (col + 1) % boxSize == 0)
+                {
+                    // Add seperator
+                    Console.Write(" ║");
+                }
+            }
+
+            // End the row with a space and right border
+            Console.Write(" ");
+            Console.WriteLine("║");
+        }
+
+        // Lowest row
+        PrintRow('╚', '═', '╝');
     }
 }
