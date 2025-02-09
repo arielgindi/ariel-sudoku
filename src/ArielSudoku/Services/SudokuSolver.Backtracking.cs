@@ -1,5 +1,4 @@
 ﻿namespace ArielSudoku.Services;
-
 public sealed partial class SudokuSolver
 {
     /// <summary>
@@ -9,14 +8,14 @@ public sealed partial class SudokuSolver
     /// <param name="emptyCellIndex">Index inside the board of the next cell to check</param>
     /// <returns>True if it was solved</returns>
     /// <exception cref="TimeoutException">Thrown if took more than 1 sec to solve</exception>
-    private bool Backtrack(int emptyCellIndex = 0)
+    private bool Backtrack()
     {
         BacktrackCallAmount++;
 
         // Only check if it took more than 1 sec every 1000 calls to improve performance
         if (BacktrackCallAmount % _CheckFrequency == 0 && _stopwatch.ElapsedMilliseconds > _TimeLimitMilliseconds)
         {
-            throw new TimeoutException("Puzzle took more than 1 second to solve.");
+            throw new TimeoutException($"Puzzle took more than {_TimeLimitMilliseconds / 1000} to solve.");
         }
 
         // Meaning board is solved
@@ -33,16 +32,22 @@ public sealed partial class SudokuSolver
         }
 
         // Try digits 1-9
-        for (int digit = 1; digit <= BoardSize; digit++)
+        for (int digit = 1; digit <= _constants.BoardSize; digit++)
         {
             if (_board.IsSafeCell(cellNumber, digit))
             {
                 _board.PlaceDigit(cellNumber, digit);
-
                 Stack<(int cellIndex, int digit)> humanTacticsStack = new();
                 ApplyHumanTactics(humanTacticsStack);
 
-                if (_board.IsSolved() || Backtrack(emptyCellIndex + 1))
+                if (_board.HasDeadEnd())
+                {
+                    UndoHumanTacticsMoves(humanTacticsStack);
+                    _board.RemoveDigit(cellNumber, digit);
+                    continue;
+                }
+
+                if (_board.IsSolved() || Backtrack())
                 {
                     return true;
                 }
