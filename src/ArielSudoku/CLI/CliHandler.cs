@@ -67,7 +67,7 @@ internal static class CliHandler
                 stopwatch.Stop();
 
                 Console.WriteLine($"{GREEN}Result{RESET}: {YELLOW}{solvedPuzzle}{RESET} ({SudokuHelpers.GetFormattedTime(stopwatch.Elapsed.TotalMilliseconds)})");
-
+                PrintPuzzle(solvedPuzzle);
                 if (showMore)
                 {
                     Console.WriteLine($"{GREEN}backtraking steps: {RESET}{backtrackCallAmount}{RESET}{CYAN}");
@@ -152,4 +152,45 @@ internal static class CliHandler
         Log();
     }
     private static void Log(string? message = "") => Console.WriteLine(message);
+
+    public static void PrintPuzzle(string puzzleString)
+    {
+        int boxSize = SudokuHelpers.CalculateBoxSize(puzzleString.Length);
+        int boardSize = boxSize * boxSize;
+
+        for (int row = 0; row < boardSize; row++)
+        {
+            if (row % boxSize == 0)
+            {
+                PrintPuzzleLine(boxSize);
+            }
+            Console.Write("|");
+            for (int col = 0; col < boardSize; col++)
+            {
+                int index = row * boardSize + col;
+                Console.Write(puzzleString[index]);
+                if (col == boardSize - 1)
+                {
+                    Console.Write("|");
+                }
+                else if ((col + 1) % boxSize == 0)
+                {
+                    Console.Write("|");
+                }
+                else
+                {
+                    Console.Write(" ");
+                }
+            }
+            Console.WriteLine();
+        }
+        PrintPuzzleLine(boxSize);
+    }
+
+    static void PrintPuzzleLine(int boxSize)
+    {
+        int boardSize = boxSize * boxSize;
+        int lineLength = 1 + boardSize * 2;
+        Console.WriteLine(new string('-', lineLength));
+    }
 }
