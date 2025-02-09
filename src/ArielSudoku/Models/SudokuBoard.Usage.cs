@@ -109,13 +109,15 @@ public sealed partial class SudokuBoard
     }
 
     /// <summary>
-    /// Returns the index of the cell with the fewest valid digits, 
-    /// or -1 if there is no empty cell with any possibilities.
+    /// Find the empty cell with the fewest valid digits, if two cells have the same count, 
+    /// the one that his neighbors have the smallest total possibilities is chosen.
+    /// Return -1 if no valid cell can be found
     /// </summary>
     public int FindLeastOptionsCellIndex()
     {
         int bestCellIndex = -1;
         int bestCount = _constants.BoardSize + 1;
+        int bestNeighborSum = int.MaxValue;
 
         for (int i = 0; i < _emptyCells.Count; i++)
         {
@@ -127,7 +129,19 @@ public sealed partial class SudokuBoard
                 {
                     bestCount = count;
                     bestCellIndex = cellIndex;
-                    if (bestCount == 1) break;
+                    bestNeighborSum = GetNeighborsPossibilitySum(cellIndex);
+
+                    if (bestCount == 1)
+                        break;
+                }
+                else if (count == bestCount)
+                {
+                    int neighborSum = GetNeighborsPossibilitySum(cellIndex);
+                    if (neighborSum < bestNeighborSum)
+                    {
+                        bestNeighborSum = neighborSum;
+                        bestCellIndex = cellIndex;
+                    }
                 }
             }
         }
@@ -135,16 +149,26 @@ public sealed partial class SudokuBoard
         return bestCellIndex;
     }
 
+    /// <summary>
+    /// Calculate the total possibilities for all neighbors of a specific cell.
+    /// </summary>
+    private int GetNeighborsPossibilitySum(int cellIndex)
+    {
+        int sum = 0;
+        foreach (int neighborIndex in _constants.CellNeighbors[cellIndex])
+        {
+            if (this[neighborIndex] == 0)
+            {
+                sum += _possPerCell[neighborIndex];
+            }
+        }
+        return sum;
+    }
+
+
     public bool IsSolved()
     {
-        // Now check if each row, column, and box has the correct mask
-        for (int i = 0; i < _constants.BoardSize; i++)
-        {
-            if (_rowMask[i] != _constants.AllPossibleDigitsMask) return false;
-            if (_colMask[i] != _constants.AllPossibleDigitsMask) return false;
-            if (_boxMask[i] != _constants.AllPossibleDigitsMask) return false;
-        }
-        return true;
+        return _emptyCells.Count() == 0;
     }
 
     /// <summary>

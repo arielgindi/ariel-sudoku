@@ -40,7 +40,7 @@ public sealed partial class SudokuSolver
         if (!solved)
         {
             Console.WriteLine($"PlaceDigitAmount: {_board.PlaceDigitAmount}");
-            Console.WriteLine($"Time it took: {SudokuHelpers.GetFormattedTime(_stopwatch.ElapsedMilliseconds)}");
+            Console.WriteLine($"Time it took: {SudokuHelpers.GetFormattedTime(_stopwatch.Elapsed.TotalMilliseconds)}");
             Console.WriteLine($"backtracking steps: {BacktrackCallAmount}");
             throw new UnsolvableSudokuException("Puzzle is unsolvable");
         }
