@@ -19,8 +19,8 @@ internal static class CliHandler
 
     // Used to print the print puzzle
     private const string LIGHT_GRAY = "\x1B[38;2;153;153;153m";
-    private const string HEAVY_BLUE = "\x1B[34m";
-    private const string LIGHT_BLUE = "\x1B[94m";
+    private const string PURPLE = "\u001b[1m\u001b[38;2;155;70;235m";
+    private const string ORANGE = "\u001b[38;5;208m";
 
     private const string BOLD = "\x1B[1m";
     private const string RESET = "\x1B[0m";
@@ -236,11 +236,11 @@ internal static class CliHandler
         {
             if (solvedPuzzle[index] == givenPuzzle[index])
             {
-                formattedPuzzle.Append(HEAVY_BLUE + givenPuzzle[index] + RESET);
+                formattedPuzzle.Append(PURPLE + givenPuzzle[index] + RESET);
             }
             else
             {
-                formattedPuzzle.Append(LIGHT_BLUE + solvedPuzzle[index] + RESET);
+                formattedPuzzle.Append(ORANGE + solvedPuzzle[index] + RESET);
             }
         }
 
