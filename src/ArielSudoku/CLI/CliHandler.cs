@@ -2,6 +2,7 @@
 using ArielSudoku.Exceptions;
 using ArielSudoku.IO;
 using System.Diagnostics;
+using System.Text;
 
 namespace ArielSudoku.CLI;
 
@@ -73,7 +74,12 @@ internal static class CliHandler
                 stopwatch.Stop();
 
                 Console.WriteLine($"{GREEN}Result{RESET}: {YELLOW}{solvedPuzzle}{RESET} ({SudokuHelpers.GetFormattedTime(stopwatch.Elapsed.TotalMilliseconds)})");
+                Stopwatch stopwatch2 = Stopwatch.StartNew();
+
                 PrintPuzzle(solvedPuzzle, givenPuzzle);
+                stopwatch2.Stop();
+                Console.WriteLine($"({SudokuHelpers.GetFormattedTime(stopwatch2.Elapsed.TotalMilliseconds)})");
+
                 if (showMore)
                 {
                     Console.WriteLine($"{GREEN}backtraking steps: {RESET}{backtrackCallAmount}{RESET}{CYAN}");
@@ -165,50 +171,55 @@ internal static class CliHandler
         Constants constants = ConstantsManager.GetOrCreateConstants(boxSize);
         int width = 2 * constants.BoardSize + 2 * (boxSize - 1) + 1;
 
-        void PrintRow(char left, char between, char right)
+        StringBuilder formattedPuzzle = new();
+
+        void AppendRow(char left, char between, char right)
         {
-            Console.WriteLine(LIGHT_GRAY + left + new string(between, width) + right + RESET);
+            formattedPuzzle.AppendLine($"{LIGHT_GRAY}{left}{new string(between, width)}{right}{RESET}");
         }
 
-        void PrintCell(int index)
+        void AppendCell(int index)
         {
-            if (solvedPuzzle[index] != givenPuzzle[index])
+            if (solvedPuzzle[index] == givenPuzzle[index])
             {
-                Console.Write(HEAVY_BLUE + givenPuzzle[index] + RESET);
+                formattedPuzzle.Append(HEAVY_BLUE + givenPuzzle[index] + RESET);
                 return;
             }
-            Console.Write(LIGHT_BLUE + solvedPuzzle[index] + RESET);
+            formattedPuzzle.Append(LIGHT_BLUE + solvedPuzzle[index] + RESET);
         }
 
         // Top row
-        PrintRow('╔', '═', '╗');
+        AppendRow('╔', '═', '╗');
         for (int row = 0; row < constants.BoardSize; row++)
         {
             // Mid row
-            if (row > 0 && row % boxSize == 0) PrintRow('╠', '═', '╣');
+            if (row > 0 && row % boxSize == 0) AppendRow('╠', '═', '╣');
 
             // Start each row with a left border
-            Console.Write(LIGHT_GRAY + "║" + RESET);
+            formattedPuzzle.Append(LIGHT_GRAY + '║' + RESET);
 
             for (int col = 0; col < constants.BoardSize; col++)
             {
-                Console.Write(" ");
-                //Console.Write(solvedPuzzle[row * constants.BoardSize + col]);
+                formattedPuzzle.Append(' ');
+
                 int index = row * constants.BoardSize + col;
-                PrintCell(index);
+                AppendCell(index);
+
                 if (col < constants.BoardSize - 1 && (col + 1) % boxSize == 0)
                 {
                     // Add seperator
-                    Console.Write(LIGHT_GRAY + " ║" + RESET);
+                    formattedPuzzle.Append(LIGHT_GRAY + " ║" + RESET);
                 }
             }
 
             // End the row with a space and right border
-            Console.Write(" ");
-            Console.WriteLine(LIGHT_GRAY + "║" + RESET);
+            formattedPuzzle.Append(' ');
+            formattedPuzzle.AppendLine(LIGHT_GRAY + '║' + RESET);
         }
 
         // Lowest row
-        PrintRow('╚', '═', '╝');
+        AppendRow('╚', '═', '╝');
+
+        Console.WriteLine(formattedPuzzle);
     }
 }
