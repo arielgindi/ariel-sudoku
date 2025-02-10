@@ -24,12 +24,13 @@ public sealed partial class SudokuSolver
     /// <summary>
     /// Try to solve the board up to 1 sec
     /// </summary>
-    /// <exception cref="UnsolvableSudokuException">Thrown if puzzle cannot be solve</exception>
+    /// <exception cref="UnsolvableSudokuException">Thrown if puzzle cannot be solved</exception>
     public void Solve()
     {
         _stopwatch.Start();
 
-        ApplyHumanTactics(null);
+        Stack<(int cellIndex, int digit)> stack = new();
+        ApplyHumanTactics(stack);
 
         if (_board.HasDeadEnd())
         {

@@ -12,7 +12,7 @@ public static class ConstantsManager
     /// It's cached, so if already exists reused, else create a new one.
     /// Valid box sizes: (1,2,3,4,5)
     /// </summary>
-    /// <param name="boxSize">Size of the box, For exmaple: 3 for 9x9 puzzle</param>
+    /// <param name="boxSize">Size of the box, For example: 3 for 9x9 puzzle</param>
     /// <returns>Return a Constants address for a given boxSize</returns>
     /// <exception cref="InputInvalidLengthException">Thrown if invalid box size is given</exception>
     public static Constants GetOrCreateConstants(int boxSize)

@@ -10,7 +10,7 @@ public static class SudokuEngine
     /// Sudoku puzzle string where '0' indicates an empty cell
     /// </param>
     /// <returns>
-    /// The solved Sudoku puzzle as an string
+    /// The solved Sudoku puzzle as a string
     /// </returns>
     /// <exception cref="InputInvalidLengthException">
     /// Thrown if <paramref name="puzzleString"/> is not 81 characters long

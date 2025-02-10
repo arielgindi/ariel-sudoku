@@ -2,7 +2,7 @@
 public sealed partial class SudokuSolver
 {
     /// <summary>
-    /// Backtrack with recussin until the sudoku is solved, 
+    /// Backtracking with recursion until the sudoku is solved,
     /// if cannot be solved, return false
     /// </summary>
     /// <param name="emptyCellIndex">Index inside the board of the next cell to check</param>
@@ -31,7 +31,7 @@ public sealed partial class SudokuSolver
             return false;
         }
 
-        // Try digits 1-9
+        // Try digits 1-boardSize
         for (int digit = 1; digit <= _constants.BoardSize; digit++)
         {
             if (_board.IsSafeCell(cellNumber, digit))

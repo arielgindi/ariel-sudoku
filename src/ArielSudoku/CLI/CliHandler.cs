@@ -17,7 +17,7 @@ internal static class CliHandler
     private const string CYAN = "\x1B[36m";
     private const string YELLOW = "\x1B[33m";
 
-    // Used to print the print puzzle
+    // Used to print the puzzle
     private const string LIGHT_GRAY = "\x1B[38;2;153;153;153m";
     private const string PURPLE = "\u001b[1m\u001b[38;2;155;70;235m";
     private const string ORANGE = "\u001b[38;5;208m";
@@ -73,7 +73,7 @@ internal static class CliHandler
     /// <summary>
     /// Main loop: wait for input, check length, and print the result.
     /// </summary>
-    /// <exception cref="FormatException">Thrown when sudoku board string is not in his correct size</exception>
+    /// <exception cref="FormatException">Thrown when sudoku board string is not the correct size</exception>
     public static void Run()
     {
         Console.CancelKeyPress += OnCancelKeyPress;
@@ -114,7 +114,7 @@ internal static class CliHandler
 
                 if (showMore)
                 {
-                    Console.WriteLine($"{GREEN}backtraking steps: {RESET}{backtrackCallAmount}{RESET}{CYAN}");
+                    Console.WriteLine($"{GREEN}backtracking steps: {RESET}{backtrackCallAmount}{RESET}{CYAN}");
                 }
             }
             catch (Exception ex)
@@ -136,7 +136,7 @@ internal static class CliHandler
         Log();
         Log($"{CYAN}============== {CYAN}{BOLD}Runtime summary{RESET}{CYAN} =============={RESET}");
         Log($"{GREEN}Total time spent        {RESET}: {SudokuHelpers.GetFormattedTime(totalTime.TotalMilliseconds)}");
-        Log($"{GREEN}Total puzzles proccesed {RESET}: {_totalPuzzlesProcessed}");
+        Log($"{GREEN}Total puzzles processed {RESET}: {_totalPuzzlesProcessed}");
         Log($"{CYAN}============================================={RESET}");
         Log($"{CYAN}{BOLD}Thanks for trying Gindi Sudoku!{RESET}");
         Log($"{CYAN}{BOLD}Exiting...{RESET}");
@@ -153,7 +153,7 @@ internal static class CliHandler
     }
 
     /// <summary>
-    /// Proccess the user input and return
+    /// Process the user input and return
     /// </summary>
     /// <param name="userInput">Plain text from the input</param>
     /// <returns>The sudoku string, and the flags if exist</returns>
@@ -192,7 +192,7 @@ internal static class CliHandler
         {
             if (parts.Length < 2)
                 throw new MissingFilePathException(
-                    "Missing file path! after 'read' command you have to write your'e file path " +
+                    "Missing file path! after 'read' command you have to write your file path " +
                     "for example 'read SudokuPuzzles.txt'");
 
             ProcessFileFromCLI(parts[1]);
@@ -230,7 +230,7 @@ internal static class CliHandler
         Log($"{GREEN}Avg time to solve      :{RESET} {SudokuHelpers.GetFormattedTime(fileHandler.AvgTimeMs)}");
         Log($"{GREEN}Longest time to solve  :{RESET} {SudokuHelpers.GetFormattedTime(fileHandler.MaxTimeMs)} (puzzle #{fileHandler.MaxTimePuzzleIndex})");
         Log($"{GREEN}Max backtracking calls :{RESET} {fileHandler.MaxBacktrackCalls} (puzzle #{fileHandler.MaxBacktrackCallsIndex})");
-        Log($"{GREEN}Avg backtraking calls  :{RESET} {fileHandler.AvgBacktrackingCalls:F3}");
+        Log($"{GREEN}Avg backtracking calls  :{RESET} {fileHandler.AvgBacktrackingCalls:F3}");
         Log($"{GREEN}Total time taken       :{RESET} {SudokuHelpers.GetFormattedTime(totalStopwatch.Elapsed.TotalMilliseconds)}");
         Log($"{CYAN}============================================={RESET}");
         Log();

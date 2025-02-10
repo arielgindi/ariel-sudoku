@@ -1,6 +1,6 @@
 ﻿namespace ArielSudoku.Common;
 /// <summary>
-/// Global static class that shares constants globaly
+/// Global static class that share constants globally
 /// </summary>
 public sealed class Constants
 {
@@ -18,7 +18,7 @@ public sealed class Constants
 
     // Bitmask that store as int an mask that is the same as if the cell
     // Was the same if cell could contain any digit
-    // For example: if BoardSize == 4 than AllPossibiliteDigitsMask is 00011110
+    // For example: if BoardSize == 4 than AllPossibleDigitsMask is 00011110
     public readonly int AllPossibleDigitsMask;
 
 
@@ -42,8 +42,8 @@ public sealed class Constants
     public int[][] CellNeighbors { get; }
 
     /// <summary>
-    /// Static constractor that only run one before access any constant inside this file
-    /// It fills the CellCoordinantes once in the runtine lifetime, so less total calculations
+    /// Static constructor that only run one before access any constant inside this file
+    /// It fills the CellCoordinates once in the runtime lifetime, so less total calculations
     /// </summary>
     public Constants(int boxSize)
     {
@@ -99,7 +99,7 @@ public sealed class Constants
                 .. CellsInBox[box],
             ];
 
-            // Remove the cell itself, because he is not his neighbors
+            // Remove the cell itself, because he isn't his own neighbors
             neighbors.Remove(cellIndex);
 
             // Store the peer set as an array

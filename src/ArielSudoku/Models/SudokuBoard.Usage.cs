@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using static ArielSudoku.Common.SudokuHelpers;
 
 /// <summary>
-/// Remember row, colum and box usage of 
+/// Remember row, col and box usage of 
 /// digits for faster and easier access.
 /// </summary>
 public sealed partial class SudokuBoard
@@ -237,7 +237,7 @@ public sealed partial class SudokuBoard
     }
 
     /// <summary>
-    /// Check if any cell has no valid digits or if a digit doesn't have any possibilites
+    /// Check if any cell has no valid digits or if a digit doesn't have any possibilities
     /// This prevents continue to try solving a dead end path.
     /// </summary>
     public bool HasDeadEnd()
@@ -296,11 +296,11 @@ public sealed partial class SudokuBoard
     /// <summary>
     /// Helper function for ApplyHiddenSingles
     /// Given a row, col or box to find a number that exist there only once
-    /// For example: if digit 6 is the only possibile digit in that row, it place it there
+    /// For example: if digit 6 is the only possible digit in that row, it place it there
     /// </summary>
     /// <param name="cellsInUnit">Unit of cells to check if there are hidden singles (row, col, or box)</param>
     /// <returns>True if a hidden single was found and placed, else false</returns>
-    public bool FindHiddenSinglesInUnit(int[] cellsInUnit, Stack<(int cellIndex, int digit)>? humanTacticsStack)
+    public bool FindHiddenSinglesInUnit(int[] cellsInUnit, Stack<(int cellIndex, int digit)> humanTacticsStack)
     {
         int hiddenSinglesMask = FindHiddenSinglesMask(cellsInUnit);
         bool changed = false;
@@ -314,7 +314,7 @@ public sealed partial class SudokuBoard
             if (targetCell != -1)
             {
                 PlaceDigit(targetCell, digit);
-                humanTacticsStack?.Push((targetCell, digit));
+                humanTacticsStack.Push((targetCell, digit));
                 changed = true;
             }
 
@@ -327,8 +327,8 @@ public sealed partial class SudokuBoard
 
     /// <summary>
     /// can all empty cells in the unit
-    /// (first storing all possible digits in seenDigits, after that excluding multiple possibilites cells)
-    /// For exmaple: If digit 5 is the only digit in the cell, return it
+    /// (first storing all possible digits in seenDigits, after that excluding multiple possibilities cells)
+    /// For example: If digit 5 is the only digit in the cell, return it
     /// </summary>
     /// <param name="cellsInUnit"></param>
     /// <returns>A bitmask of hidden singles or zero</returns>
