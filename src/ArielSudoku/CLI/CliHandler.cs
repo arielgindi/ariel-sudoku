@@ -24,9 +24,20 @@ internal static class CliHandler
 
     private const string BOLD = "\x1B[1m";
     private const string RESET = "\x1B[0m";
+
     /// <summary>
     /// Print a short welcome message
     /// </summary>
+    private static bool _shouldExit = false;
+
+
+   
+    private static int _totalPuzzlesProcessed = 0; 
+
+   
+    private static DateTime _appStartTime = DateTime.Now;
+
+
     private static void PrintWelcome()
     {
         Console.WriteLine($"{CYAN}================================={RESET}");
@@ -52,33 +63,41 @@ internal static class CliHandler
     /// <exception cref="FormatException">Thrown when sudoku board string is not in his correct size</exception>
     public static void Run()
     {
+        Console.CancelKeyPress += OnCancelKeyPress;
+
         PrintWelcome();
 
-        while (true)
+        while (!_shouldExit)
         {
             Console.Write($"{CYAN}>> {RESET}");
 
+            string? userInput = Console.ReadLine();
+
+            // If user pressed Ctrl+C or userInput is null, break
+            if (_shouldExit || userInput == null)
+            {
+                break;
+            }
+
+            userInput = userInput.Trim();
 
             try
             {
-                string? userInput = Console.ReadLine()?.Trim();
-                (string givenPuzzle, bool showMore) = ParseInput(userInput);
+                (string givenPuzzle, bool showMore) = ParseInput(userInput ?? "");
 
                 if (string.IsNullOrWhiteSpace(givenPuzzle))
                 {
                     continue;
                 }
 
+                _totalPuzzlesProcessed++;
+
                 Stopwatch stopwatch = Stopwatch.StartNew();
                 (string solvedPuzzle, int backtrackCallAmount) = SudokuEngine.SolveSudoku(givenPuzzle);
                 stopwatch.Stop();
 
                 Console.WriteLine($"{GREEN}Result{RESET}: {YELLOW}{solvedPuzzle}{RESET} ({SudokuHelpers.GetFormattedTime(stopwatch.Elapsed.TotalMilliseconds)})");
-                Stopwatch stopwatch2 = Stopwatch.StartNew();
-
                 PrintPuzzle(solvedPuzzle, givenPuzzle);
-                stopwatch2.Stop();
-                Console.WriteLine($"({SudokuHelpers.GetFormattedTime(stopwatch2.Elapsed.TotalMilliseconds)})");
 
                 if (showMore)
                 {
@@ -90,6 +109,34 @@ internal static class CliHandler
                 Console.WriteLine($"{RED}Error: {ex.Message}{RESET}");
             }
         }
+
+        PrintExitMessage();
+    }
+
+
+    /// <summary>
+    /// Print exit message
+    /// </summary>
+    private static void PrintExitMessage()
+    {
+        TimeSpan totalTime = DateTime.Now - _appStartTime;
+        Log();
+        Log($"{CYAN}============== {CYAN}{BOLD}Runtime summary{RESET}{CYAN} =============={RESET}");
+        Log($"{GREEN}Total time spent        {RESET}: {SudokuHelpers.GetFormattedTime(totalTime.TotalMilliseconds)}");
+        Log($"{GREEN}Total puzzles proccesed {RESET}: {_totalPuzzlesProcessed}");
+        Log($"{CYAN}============================================={RESET}");
+        Log($"{CYAN}{BOLD}Thanks for trying Gindi Sudoku!{RESET}");
+        Log($"{CYAN}{BOLD}Exiting...{RESET}");
+    }
+
+
+    /// <summary>
+    /// Handles Ctrl+C so we can exit cleanly
+    /// </summary>
+    private static void OnCancelKeyPress(object? sender, ConsoleCancelEventArgs e)
+    {
+        e.Cancel = true;
+        _shouldExit = true;
     }
 
     /// <summary>
@@ -105,6 +152,13 @@ internal static class CliHandler
 
         if (parts.Length == 0)
         {
+            return ("", false);
+        }
+
+        if (parts[0].Equals("exit", StringComparison.OrdinalIgnoreCase))
+        {
+            Console.WriteLine("Goodbye!");
+            _shouldExit = true;
             return ("", false);
         }
 
@@ -147,11 +201,10 @@ internal static class CliHandler
         totalStopwatch.Start();
 
         SudokuFileHandler fileHandler = new(filePath);
-
+        _totalPuzzlesProcessed += fileHandler.TotalPuzzles;
         totalStopwatch.Stop();
-
         Log();
-        Log($"{CYAN}========== File processing summary =========={RESET}");
+        Log($"{CYAN}========== {CYAN}{BOLD}File processing summary{RESET}{CYAN} =========={RESET}");
         Log($"{GREEN}File input path        :{RESET} {filePath}");
         Log($"{GREEN}Output file            :{RESET} {fileHandler.OutputPath}");
         Log($"{GREEN}Number of puzzles      :{RESET} {fileHandler.TotalPuzzles}");
@@ -163,6 +216,7 @@ internal static class CliHandler
         Log($"{CYAN}============================================={RESET}");
         Log();
     }
+
     private static void Log(string? message = "") => Console.WriteLine(message);
 
     public static void PrintPuzzle(string solvedPuzzle, string givenPuzzle)
@@ -183,9 +237,11 @@ internal static class CliHandler
             if (solvedPuzzle[index] == givenPuzzle[index])
             {
                 formattedPuzzle.Append(HEAVY_BLUE + givenPuzzle[index] + RESET);
-                return;
             }
-            formattedPuzzle.Append(LIGHT_BLUE + solvedPuzzle[index] + RESET);
+            else
+            {
+                formattedPuzzle.Append(LIGHT_BLUE + solvedPuzzle[index] + RESET);
+            }
         }
 
         // Top row

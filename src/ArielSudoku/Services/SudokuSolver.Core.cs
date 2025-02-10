@@ -10,7 +10,7 @@ public sealed partial class SudokuSolver
 
     private readonly SudokuBoard _board;
     private readonly Stopwatch _stopwatch;
-    private const int _TimeLimitMilliseconds = 1000;
+    private const int _TimeLimitMilliseconds = 100000;
     private const int _CheckFrequency = 1000;
     private readonly Constants _constants;
 
