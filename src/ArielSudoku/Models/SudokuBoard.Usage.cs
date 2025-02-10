@@ -10,16 +10,16 @@ using static ArielSudoku.Common.SudokuHelpers;
 /// </summary>
 public sealed partial class SudokuBoard
 {
-    private int[] _rowMask;
-    private int[] _colMask;
-    private int[] _boxMask;
+    private int[] _rowMask = null!;
+    private int[] _colMask = null!;
+    private int[] _boxMask = null!;
 
     // Each cell has a bitmask of valid digits (bits 1..BoardSize).
-    private int[] _cellMasks;
+    private int[] _cellMasks = null!;
 
     // Track how many possibilities each cell has,
     // For example: if cell index 55 has 3 valid options, _possPerCell[55] = 3
-    private int[] _possPerCell;
+    private int[] _possPerCell = null!;
 
     // Track indexes of cells that are currently empty
     private List<int> _emptyCells = [];
@@ -168,7 +168,7 @@ public sealed partial class SudokuBoard
 
     public bool IsSolved()
     {
-        return _emptyCells.Count() == 0;
+        return _emptyCells.Count == 0;
     }
 
     /// <summary>
@@ -193,20 +193,39 @@ public sealed partial class SudokuBoard
         }
         return 0;
     }
+
     /// <summary>
     /// Updates the possibility masks for neighbors of the given cell
     /// </summary>
     private void UpdateNeighborPossibilities(int cellIndex)
     {
-        foreach (int neighborIndex in _constants.CellNeighbors[cellIndex])
+        int digit = _cells[cellIndex];
+        if (digit != 0)
         {
-            if (this[neighborIndex] == 0)
+            // When a digit is placed, update the possibility masks of neighboring cells.
+            foreach (int neighborIndex in _constants.CellNeighbors[cellIndex])
             {
-                _cellMasks[neighborIndex] = CalculateCellMask(neighborIndex);
-                _possPerCell[neighborIndex] = CountBits(_cellMasks[neighborIndex]);
+                if (_cells[neighborIndex] == 0 && HasBitSet(_cellMasks[neighborIndex], digit))
+                {
+                    _cellMasks[neighborIndex] = ClearBit(_cellMasks[neighborIndex], digit);
+                    _possPerCell[neighborIndex]--;
+                }
+            }
+        }
+        else
+        {
+            // When a digit is removed, recalculate the possibility masks of neighboring cells.
+            foreach (int neighborIndex in _constants.CellNeighbors[cellIndex])
+            {
+                if (_cells[neighborIndex] == 0)
+                {
+                    _cellMasks[neighborIndex] = CalculateCellMask(neighborIndex);
+                    _possPerCell[neighborIndex] = CountBits(_cellMasks[neighborIndex]);
+                }
             }
         }
     }
+
     /// <summary>
     /// Get a mask containing all valid digits of a cell index
     /// </summary>
@@ -216,11 +235,11 @@ public sealed partial class SudokuBoard
         int combined = _rowMask[rowIndex] | _colMask[colIndex] | _boxMask[boxIndex];
         return _constants.AllPossibleDigitsMask & ~combined;
     }
+
     /// <summary>
     /// Check if any cell has no valid digits or if a digit doesn't have any possibilites
     /// This prevents continue to try solving a dead end path.
     /// </summary>
-
     public bool HasDeadEnd()
     {
         foreach (int emptyCellIndex in _emptyCells)
