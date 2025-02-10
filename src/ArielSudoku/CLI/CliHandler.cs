@@ -2,7 +2,6 @@
 using ArielSudoku.Exceptions;
 using ArielSudoku.IO;
 using System.Diagnostics;
-using System.Text;
 
 namespace ArielSudoku.CLI;
 
@@ -11,13 +10,19 @@ namespace ArielSudoku.CLI;
 /// </summary>
 internal static class CliHandler
 {
+    // Normal colors
     private const string RED = "\x1B[31m";
     private const string GREEN = "\x1B[32m";
     private const string CYAN = "\x1B[36m";
-    private const string BOLD = "\x1B[1m";
-    private const string RESET = "\x1B[0m";
     private const string YELLOW = "\x1B[33m";
 
+    // Used to print the print puzzle
+    private const string LIGHT_GRAY = "\x1B[38;2;153;153;153m";
+    private const string HEAVY_BLUE = "\x1B[34m";
+    private const string LIGHT_BLUE = "\x1B[94m";
+
+    private const string BOLD = "\x1B[1m";
+    private const string RESET = "\x1B[0m";
     /// <summary>
     /// Print a short welcome message
     /// </summary>
@@ -56,19 +61,19 @@ internal static class CliHandler
             try
             {
                 string? userInput = Console.ReadLine()?.Trim();
-                (string puzzleString, bool showMore) = ParseInput(userInput);
+                (string givenPuzzle, bool showMore) = ParseInput(userInput);
 
-                if (string.IsNullOrWhiteSpace(puzzleString))
+                if (string.IsNullOrWhiteSpace(givenPuzzle))
                 {
                     continue;
                 }
 
                 Stopwatch stopwatch = Stopwatch.StartNew();
-                (string solvedPuzzle, int backtrackCallAmount) = SudokuEngine.SolveSudoku(puzzleString);
+                (string solvedPuzzle, int backtrackCallAmount) = SudokuEngine.SolveSudoku(givenPuzzle);
                 stopwatch.Stop();
 
                 Console.WriteLine($"{GREEN}Result{RESET}: {YELLOW}{solvedPuzzle}{RESET} ({SudokuHelpers.GetFormattedTime(stopwatch.Elapsed.TotalMilliseconds)})");
-                PrintPuzzle(solvedPuzzle);
+                PrintPuzzle(solvedPuzzle, givenPuzzle);
                 if (showMore)
                 {
                     Console.WriteLine($"{GREEN}backtraking steps: {RESET}{backtrackCallAmount}{RESET}{CYAN}");
@@ -154,15 +159,25 @@ internal static class CliHandler
     }
     private static void Log(string? message = "") => Console.WriteLine(message);
 
-    public static void PrintPuzzle(string puzzle)
+    public static void PrintPuzzle(string solvedPuzzle, string givenPuzzle)
     {
-        int boxSize = SudokuHelpers.CalculateBoxSize(puzzle.Length);
+        int boxSize = SudokuHelpers.CalculateBoxSize(solvedPuzzle.Length);
         Constants constants = ConstantsManager.GetOrCreateConstants(boxSize);
         int width = 2 * constants.BoardSize + 2 * (boxSize - 1) + 1;
 
         void PrintRow(char left, char between, char right)
         {
-            Console.WriteLine(left  + new string(between, width) + right);
+            Console.WriteLine(LIGHT_GRAY + left + new string(between, width) + right + RESET);
+        }
+
+        void PrintCell(int index)
+        {
+            if (solvedPuzzle[index] != givenPuzzle[index])
+            {
+                Console.Write(HEAVY_BLUE + givenPuzzle[index] + RESET);
+                return;
+            }
+            Console.Write(LIGHT_BLUE + solvedPuzzle[index] + RESET);
         }
 
         // Top row
@@ -173,23 +188,24 @@ internal static class CliHandler
             if (row > 0 && row % boxSize == 0) PrintRow('╠', '═', '╣');
 
             // Start each row with a left border
-            Console.Write("║");
+            Console.Write(LIGHT_GRAY + "║" + RESET);
 
             for (int col = 0; col < constants.BoardSize; col++)
             {
                 Console.Write(" ");
-                Console.Write(puzzle[row * constants.BoardSize + col]);
-
+                //Console.Write(solvedPuzzle[row * constants.BoardSize + col]);
+                int index = row * constants.BoardSize + col;
+                PrintCell(index);
                 if (col < constants.BoardSize - 1 && (col + 1) % boxSize == 0)
                 {
                     // Add seperator
-                    Console.Write(" ║");
+                    Console.Write(LIGHT_GRAY + " ║" + RESET);
                 }
             }
 
             // End the row with a space and right border
             Console.Write(" ");
-            Console.WriteLine("║");
+            Console.WriteLine(LIGHT_GRAY + "║" + RESET);
         }
 
         // Lowest row
