@@ -25,27 +25,40 @@ internal static class CliHandler
     private const string BOLD = "\x1B[1m";
     private const string RESET = "\x1B[0m";
 
+    
+    private static bool _shouldExit = false;
+    private static int _totalPuzzlesProcessed = 0; 
+    private static readonly DateTime _appStartTime = DateTime.Now;
+    private static readonly string[] availableCommands = ["exit", "clear", "read", "help"];
+
     /// <summary>
     /// Print a short welcome message
     /// </summary>
-    private static bool _shouldExit = false;
-
-
-   
-    private static int _totalPuzzlesProcessed = 0; 
-
-   
-    private static DateTime _appStartTime = DateTime.Now;
-
-
     private static void PrintWelcome()
     {
-        Console.WriteLine($"{CYAN}================================={RESET}");
-        Console.WriteLine($"{CYAN}{BOLD}          Gindi Sudoku{RESET}");
-        Console.WriteLine($"{CYAN}================================={RESET}");
-        Console.WriteLine($"Use flags: {BOLD}{CYAN}-m{RESET} or {BOLD}{CYAN}--more{RESET} for more info");
-        Console.WriteLine($"Available Commands: {BOLD}{CYAN}exit{RESET}, {BOLD}{CYAN}clear{RESET}, {BOLD}{CYAN}read{RESET}");
-        Console.WriteLine();
+        string commands = string.Join(", ", availableCommands.Select(cmd => $"{BOLD}{CYAN}{cmd}{RESET}"));
+        Log($"{CYAN}================================={RESET}");
+        Log($"{CYAN}{BOLD}          Gindi Sudoku{RESET}");
+        Log($"{CYAN}================================={RESET}");
+        Log($"Use flags: {BOLD}{CYAN}-m{RESET} or {BOLD}{CYAN}--more{RESET} for more info");
+        Log($"Available Commands: {commands}");
+        Log();
+    }
+
+    /// <summary>
+    /// Shows a help message with quick examples.
+    /// </summary>
+    private static void PrintHelp()
+    {
+        Log($"{CYAN}============ {BOLD}CLI Usage{RESET}{CYAN} ============{RESET}");
+        Log($"{CYAN}{BOLD}puzzle{RESET} [{CYAN}{BOLD}flag{RESET}] : Solve one puzzle");
+        Log($"                For example:  '{GREEN}0001020004000000 --more{RESET}'");
+        Log($"{CYAN}{BOLD}read{RESET} <{CYAN}{BOLD}path{RESET}>   : Solve puzzles from file");
+        Log($"                For example:  '{GREEN}read C:\\data\\49158.txt{RESET}'");
+        Log($"{CYAN}{BOLD}clear{RESET}         : Clear the screen");
+        Log($"{CYAN}{BOLD}help{RESET}          : Show help info");
+        Log($"{CYAN}{BOLD}exit{RESET}          : Quit the program");
+        Log($"{CYAN}============================================{RESET}");
     }
 
     /// <summary>
@@ -166,6 +179,12 @@ internal static class CliHandler
         if (parts[0].Equals("clear", StringComparison.OrdinalIgnoreCase))
         {
             ClearScreenAndShowWelcome();
+            return ("", false);
+        }
+
+        if (parts[0].Equals("help", StringComparison.OrdinalIgnoreCase))
+        {
+            PrintHelp();
             return ("", false);
         }
 
