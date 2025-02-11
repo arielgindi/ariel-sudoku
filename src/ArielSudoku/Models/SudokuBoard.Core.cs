@@ -10,6 +10,7 @@ public sealed partial class SudokuBoard
 {
     private readonly int[] _cells;
     public int PlaceDigitAmount { get; private set; } = 0;
+    public int HasDeadEndAmount { get; private set; } = 0;
     public readonly Constants _constants ;
 
     public SudokuBoard(string puzzleString)

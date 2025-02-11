@@ -246,10 +246,11 @@ public sealed partial class SudokuBoard
         {
             if (_possPerCell[emptyCellIndex] == 0)
             {
+                HasDeadEndAmount++;
                 return true;
             }
         }
-
+        HasDeadEndAmount++;
         for (int digit = 1; digit <= _constants.BoardSize; digit++)
         {
             int bit = GetMaskForDigit(digit);
@@ -257,6 +258,8 @@ public sealed partial class SudokuBoard
             if (HasNoSpotForDigit(_constants.CellsInCol, _colMask, digit, bit)) return true;
             if (HasNoSpotForDigit(_constants.CellsInBox, _boxMask, digit, bit)) return true;
         }
+
+        HasDeadEndAmount--;
         return false;
     }
 

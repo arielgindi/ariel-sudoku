@@ -13,7 +13,6 @@ public sealed partial class SudokuSolver
     private const int _TimeLimitMilliseconds = 100000;
     private const int _CheckFrequency = 1000;
     private readonly Constants _constants;
-
     public SudokuSolver(SudokuBoard sudokuBoard)
     {
         _stopwatch = new Stopwatch();
@@ -42,8 +41,11 @@ public sealed partial class SudokuSolver
         {
             Console.WriteLine($"PlaceDigitAmount: {_board.PlaceDigitAmount}");
             Console.WriteLine($"Time it took: {SudokuHelpers.GetFormattedTime(_stopwatch.Elapsed.TotalMilliseconds)}");
-            Console.WriteLine($"backtracking steps: {BacktrackCallAmount}");
+            Console.WriteLine($"Backtracking steps: {BacktrackCallAmount}");
+            Console.WriteLine($"Dead end was found: {_board.HasDeadEndAmount}");
             throw new UnsolvableSudokuException("Puzzle is unsolvable");
         }
+
+        //Console.WriteLine($"Dead end was found: {_board.HasDeadEndAmount}");
     }
 }
