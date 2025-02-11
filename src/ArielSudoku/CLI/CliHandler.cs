@@ -24,12 +24,15 @@ internal static class CliHandler
 
     private const string BOLD = "\x1B[1m";
     private const string RESET = "\x1B[0m";
+    private static bool _printLetters = false;
 
-    
     private static bool _shouldExit = false;
-    private static int _totalPuzzlesProcessed = 0; 
+    private static bool _showMore = false;
+    private static int _totalPuzzlesProcessed = 0;
     private static readonly DateTime _appStartTime = DateTime.Now;
     private static readonly string[] availableCommands = ["exit", "clear", "read", "help"];
+    private static readonly string[] availableFlags = ["-m", "--more", "--letters"];
+
 
     /// <summary>
     /// Print a short welcome message
@@ -37,10 +40,12 @@ internal static class CliHandler
     private static void PrintWelcome()
     {
         string commands = string.Join(", ", availableCommands.Select(cmd => $"{BOLD}{CYAN}{cmd}{RESET}"));
+        string flags = string.Join(", ", availableFlags.Select(cmd => $"{BOLD}{CYAN}{cmd}{RESET}"));
+        Log();
         Log($"{CYAN}================================={RESET}");
         Log($"{CYAN}{BOLD}          Gindi Sudoku{RESET}");
         Log($"{CYAN}================================={RESET}");
-        Log($"Use flags: {BOLD}{CYAN}-m{RESET} or {BOLD}{CYAN}--more{RESET} for more info");
+        Log($"Available flags: {flags}");
         Log($"Available Commands: {commands}");
         Log();
     }
@@ -51,8 +56,8 @@ internal static class CliHandler
     private static void PrintHelp()
     {
         Log($"{CYAN}============ {BOLD}CLI Usage{RESET}{CYAN} ============{RESET}");
-        Log($"{CYAN}{BOLD}puzzle{RESET} [{CYAN}{BOLD}flag{RESET}] : Solve one puzzle");
-        Log($"                For example:  '{GREEN}0001020004000000 --more{RESET}'");
+        Log($"{CYAN}{BOLD}puzzle{RESET} [{CYAN}{BOLD}flag/s{RESET}] : Solve one puzzle");
+        Log($"                For example:  '{GREEN}0001020004000000 --more --letters{RESET}'");
         Log($"{CYAN}{BOLD}read{RESET} <{CYAN}{BOLD}path{RESET}>   : Solve puzzles from file");
         Log($"                For example:  '{GREEN}read C:\\data\\49158.txt{RESET}'");
         Log($"{CYAN}{BOLD}clear{RESET}         : Clear the screen");
@@ -96,7 +101,7 @@ internal static class CliHandler
 
             try
             {
-                (string givenPuzzle, bool showMore) = ParseInput(userInput ?? "");
+                string givenPuzzle = ParseInput(userInput ?? "");
 
                 if (string.IsNullOrWhiteSpace(givenPuzzle))
                 {
@@ -106,15 +111,15 @@ internal static class CliHandler
                 _totalPuzzlesProcessed++;
 
                 Stopwatch stopwatch = Stopwatch.StartNew();
-                (string solvedPuzzle, int backtrackCallAmount) = SudokuEngine.SolveSudoku(givenPuzzle);
+                (string solvedPuzzle, int guessCount) = SudokuEngine.SolveSudoku(givenPuzzle);
                 stopwatch.Stop();
 
                 Console.WriteLine($"{GREEN}Result{RESET}: {YELLOW}{solvedPuzzle}{RESET} ({SudokuHelpers.GetFormattedTime(stopwatch.Elapsed.TotalMilliseconds)})");
                 PrintPuzzle(solvedPuzzle, givenPuzzle);
 
-                if (showMore)
+                if (_showMore)
                 {
-                    Console.WriteLine($"{GREEN}backtracking steps: {RESET}{backtrackCallAmount}{RESET}{CYAN}");
+                    Console.WriteLine($"{GREEN}Total guesses: {RESET}{guessCount}{RESET}{CYAN}");
                 }
             }
             catch (Exception ex)
@@ -159,33 +164,37 @@ internal static class CliHandler
     /// <returns>The sudoku string, and the flags if exist</returns>
     /// <exception cref="SudokuInvalidFlagException">Thrown if Flag doesnt match valid flags</exception>
     /// <exception cref="TooManyArgumentsException">Thrown if too mang flags are used</exception>
-    static (string puzzleString, bool showMore) ParseInput(string userInput)
+    static string ParseInput(string userInput)
     {
+        // Set flag to thier defualt value
+        _shouldExit = false;
+        _printLetters = false;
+        _showMore = false;
         string[] parts = userInput?.Split(' ', StringSplitOptions.RemoveEmptyEntries) ?? [];
 
         if (parts.Length == 0)
         {
-            return ("", false);
+            return "";
         }
 
         if (parts[0].Equals("exit", StringComparison.OrdinalIgnoreCase))
         {
             Console.WriteLine("Goodbye!");
             _shouldExit = true;
-            return ("", false);
+            return "";
         }
 
         // Clear the screen
         if (parts[0].Equals("clear", StringComparison.OrdinalIgnoreCase))
         {
             ClearScreenAndShowWelcome();
-            return ("", false);
+            return "";
         }
 
         if (parts[0].Equals("help", StringComparison.OrdinalIgnoreCase))
         {
             PrintHelp();
-            return ("", false);
+            return "";
         }
 
         if (parts[0] == "read")
@@ -196,22 +205,44 @@ internal static class CliHandler
                     "for example 'read SudokuPuzzles.txt'");
 
             ProcessFileFromCLI(parts[1]);
-            return ("", false);
+            return "";
         }
 
         if (parts.Length == 1)
         {
-            return (parts[0], false);
+            return parts[0];
         }
 
-        if (parts.Length == 2)
+        if (parts.Length == 2 || parts.Length == 3)
         {
-            if (parts[1] == "-m" || parts[1] == "--more")
-                return (parts[0], true);
-            throw new SudokuInvalidFlagException("Invalid flag. do you mean '--more'?");
+            for (int i = 1; i < parts.Length; i++)
+            {
+                if (parts[i] == "-m" || parts[i] == "--more")
+                {
+                    if (_showMore)
+                    {
+                        throw new SudokuInvalidFlagException("Cannot use '-m, --more' flag more than once!");
+                    }
+                    _showMore = true;
+                }
+
+                else if (parts[i] == "--letters")
+                {
+                    if (_printLetters)
+                    {
+                        throw new SudokuInvalidFlagException("Cannot use '--letters' flag more than once!");
+                    }
+
+                    _printLetters = true;
+                }
+                else
+                    throw new SudokuInvalidFlagException("Invalid flag. do you mean '--more' or '--letters'?");
+            }
+
+            return parts[0];
         }
 
-        throw new TooManyArgumentsException("Too many arguments. Provide a puzzle and optionally the '--more' flag.");
+        throw new TooManyArgumentsException("Too many arguments. Type 'help' or try again");
     }
 
     private static void ProcessFileFromCLI(string filePath)
@@ -224,14 +255,14 @@ internal static class CliHandler
         totalStopwatch.Stop();
         Log();
         Log($"{CYAN}========== {CYAN}{BOLD}File processing summary{RESET}{CYAN} =========={RESET}");
-        Log($"{GREEN}File input path        :{RESET} {filePath}");
-        Log($"{GREEN}Output file            :{RESET} {fileHandler.OutputPath}");
-        Log($"{GREEN}Number of puzzles      :{RESET} {fileHandler.TotalPuzzles}");
-        Log($"{GREEN}Avg time to solve      :{RESET} {SudokuHelpers.GetFormattedTime(fileHandler.AvgTimeMs)}");
-        Log($"{GREEN}Longest time to solve  :{RESET} {SudokuHelpers.GetFormattedTime(fileHandler.MaxTimeMs)} (puzzle #{fileHandler.MaxTimePuzzleIndex})");
-        Log($"{GREEN}Max backtracking calls :{RESET} {fileHandler.MaxBacktrackCalls} (puzzle #{fileHandler.MaxBacktrackCallsIndex})");
-        Log($"{GREEN}Avg backtracking calls  :{RESET} {fileHandler.AvgBacktrackingCalls:F3}");
-        Log($"{GREEN}Total time taken       :{RESET} {SudokuHelpers.GetFormattedTime(totalStopwatch.Elapsed.TotalMilliseconds)}");
+        Log($"{GREEN}File input path       :{RESET} {filePath}");
+        Log($"{GREEN}Output file           :{RESET} {fileHandler.OutputPath}");
+        Log($"{GREEN}Number of puzzles     :{RESET} {fileHandler.TotalPuzzles}");
+        Log($"{GREEN}Avg time to solve     :{RESET} {SudokuHelpers.GetFormattedTime(fileHandler.AvgTimeMs)}");
+        Log($"{GREEN}Longest time to solve :{RESET} {SudokuHelpers.GetFormattedTime(fileHandler.MaxTimeMs)} (puzzle #{fileHandler.MaxTimePuzzleIndex})");
+        Log($"{GREEN}Max guesses           :{RESET} {fileHandler.MaxBacktrackCalls} (puzzle #{fileHandler.MaxBacktrackCallsIndex})");
+        Log($"{GREEN}Avg guesses           :{RESET} {fileHandler.AvgBacktrackingCalls:F3}");
+        Log($"{GREEN}Total time taken      :{RESET} {SudokuHelpers.GetFormattedTime(totalStopwatch.Elapsed.TotalMilliseconds)}");
         Log($"{CYAN}============================================={RESET}");
         Log();
     }
@@ -253,14 +284,17 @@ internal static class CliHandler
 
         void AppendCell(int index)
         {
-            if (solvedPuzzle[index] == givenPuzzle[index])
+            bool isOriginalCell = solvedPuzzle[index] == givenPuzzle[index];
+            
+            string color = isOriginalCell ? PURPLE : ORANGE;
+            char cellValue = solvedPuzzle[index];
+
+            if (_printLetters)
             {
-                formattedPuzzle.Append(PURPLE + givenPuzzle[index] + RESET);
+                cellValue += (char)('A' - '1');
             }
-            else
-            {
-                formattedPuzzle.Append(ORANGE + solvedPuzzle[index] + RESET);
-            }
+
+            formattedPuzzle.Append(color + cellValue + RESET);
         }
 
         // Top row

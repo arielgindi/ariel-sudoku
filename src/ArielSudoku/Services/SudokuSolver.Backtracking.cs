@@ -10,10 +10,9 @@ public sealed partial class SudokuSolver
     /// <exception cref="TimeoutException">Thrown if took more than 1 sec to solve</exception>
     private bool Backtrack()
     {
-        BacktrackCallAmount++;
 
         // Only check if it took more than 1 sec every 1000 calls to improve performance
-        if (BacktrackCallAmount % _CheckFrequency == 0 && _stopwatch.ElapsedMilliseconds > _TimeLimitMilliseconds)
+        if (_CheckFrequency == 0 && _stopwatch.ElapsedMilliseconds > _TimeLimitMilliseconds)
         {
             throw new TimeoutException($"Puzzle took more than {_TimeLimitMilliseconds / 1000} to solve.");
         }
@@ -36,6 +35,7 @@ public sealed partial class SudokuSolver
         {
             if (_board.IsSafeCell(cellNumber, digit))
             {
+                GuessCount++;
                 _board.PlaceDigit(cellNumber, digit);
                 Stack<(int cellIndex, int digit)> humanTacticsStack = new();
                 ApplyHumanTactics(humanTacticsStack);

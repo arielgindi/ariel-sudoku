@@ -6,7 +6,7 @@ namespace ArielSudoku.Services;
 
 public sealed partial class SudokuSolver
 {
-    public int BacktrackCallAmount { get; private set; }
+    public int GuessCount { get; private set; }
 
     private readonly SudokuBoard _board;
     private readonly Stopwatch _stopwatch;
@@ -41,7 +41,7 @@ public sealed partial class SudokuSolver
         {
             Console.WriteLine($"PlaceDigitAmount: {_board.PlaceDigitAmount}");
             Console.WriteLine($"Time it took: {SudokuHelpers.GetFormattedTime(_stopwatch.Elapsed.TotalMilliseconds)}");
-            Console.WriteLine($"Backtracking steps: {BacktrackCallAmount}");
+            Console.WriteLine($"Backtracking steps: {GuessCount}");
             Console.WriteLine($"Dead end was found: {_board.HasDeadEndAmount}");
             throw new UnsolvableSudokuException("Puzzle is unsolvable");
         }
