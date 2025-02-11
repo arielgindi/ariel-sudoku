@@ -1,6 +1,7 @@
-﻿namespace ArielSudoku.Tests.IO;
+﻿using static ArielSudoku.Tests.SudokuTestsBase;
+namespace ArielSudoku.Tests.IO;
 
-public class BulkEvilSudokuTests : SudokuTestsBase
+public class BulkEvilSudokuTests
 {
     [Fact]
     public void SolveAllHardSudokusFromFile()

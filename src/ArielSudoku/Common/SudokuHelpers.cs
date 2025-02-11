@@ -1,4 +1,5 @@
 ﻿using ArielSudoku.Exceptions;
+using ArielSudoku.Models;
 using System.Numerics;
 
 namespace ArielSudoku.Common;
@@ -70,5 +71,47 @@ public static class SudokuHelpers
                 $"Puzzle length {puzzleLength} is not one of the recognized sizes (1,16,81,256,625)"
             )
         };
+    }
+
+    /// <summary>
+    /// Validate if a puzzle was solved correctly
+    /// Check if a given solved puzzle match the given puzzle 
+    /// And if the solved puzzle is valid
+    /// </summary>
+    /// <param name="solvedPuzzle">String represent the puzzle solution</param>
+    /// <param name="givenPuzzle">String represent the given unsolved puzzle</param>
+    /// <exception cref="MismatchSolutionException">Thrown when solved puzzle doesnt match the given puzzle</exception>
+    /// <exception cref="SudokuInvalidBoardException">Thrown when solved puzzle contain conflicts</exception>
+    public static void IsValidSolution(string solvedPuzzle, string givenPuzzle)
+    {
+        if (solvedPuzzle.Length != givenPuzzle.Length) 
+            throw new MismatchSolutionException("The given and solved puzzle aren't the same length");
+
+        int boxSize = CalculateBoxSize(solvedPuzzle.Length);
+        Constants constants = ConstantsManager.GetOrCreateConstants(boxSize);
+
+        bool isEmptyCell(int cellIndex) => givenPuzzle[cellIndex] == '0' || givenPuzzle[cellIndex] == '.';
+
+        // Check if there is not a match between the given and solved puzzle
+        for (int cellIndex = 0; cellIndex < constants.CellCount; cellIndex++)
+        {
+            if (!isEmptyCell(cellIndex) && solvedPuzzle[cellIndex] != givenPuzzle[cellIndex])
+            {
+                throw new MismatchSolutionException(
+                    $"The given and solved puzzle differentiate at cellIndex: {cellIndex}." +
+                    " Expected {givenPuzzle[cellIndex]}");
+            }
+        }
+
+        try
+        {
+            // If there are any conflicts, in the existing solvedPuzzle, SudokuBoard will automaticly throw "SudokuInvalidBoardException" 
+            // For example if cell index 5 and 6 both contain the number 9, SudokuInvalidBoardException will be thrown
+            SudokuBoard board = new(solvedPuzzle);
+        }
+        catch (SudokuInvalidBoardException)
+        {
+            throw;
+        }
     }
 }

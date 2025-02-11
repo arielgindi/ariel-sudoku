@@ -1,6 +1,7 @@
-﻿using ArielSudoku.Exceptions;
+﻿using static ArielSudoku.Tests.SudokuTestsBase;
+using ArielSudoku.Exceptions;
 
-namespace ArielSudoku.Tests;
+namespace ArielSudoku.Tests.MediumPuzzle;
 /// <summary>
 /// Unsolvable sudoku expect <exception cref="UnsolvableSudokuException" /> 
 /// if he will not get that the test will be failed

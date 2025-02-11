@@ -1,20 +1,19 @@
-﻿namespace ArielSudoku.Tests;
+﻿using static ArielSudoku.Tests.SudokuTestsBase;
+namespace ArielSudoku.Tests.MediumPuzzle;
 public class MediumSudokuTests : SudokuTestsBase
 {
     [Fact]
     public void SolveMediumSudoku1()
     {
         string puzzle = "006790050350000010000030004000908007504000902800502000600020000020000078010087300";
-        string expectedSolution = "246791853358264719791835264162948537574316982839572641687123495423659178915487326";
-        CheckPuzzleSolution(puzzle, expectedSolution);
+        CheckPuzzleSolution(puzzle);
     }
 
     [Fact]
     public void SolveMediumSudoku2()
     {
         string puzzle = "082000560000000000000753000050000030400208001800000006509000302000000000036070140";
-        string expectedSolution = "782914563395682714614753829951467238467238951823591476579146382148325697236879145";
-        CheckPuzzleSolution(puzzle, expectedSolution);
+        CheckPuzzleSolution(puzzle);
     }
 
 
@@ -22,8 +21,7 @@ public class MediumSudokuTests : SudokuTestsBase
     public void SolveMediumSudoku3()
     {
         string puzzle = "000700063000310507600000900016500000000279000000004390009000004205037000170002000";
-        string expectedSolution = "521798463894316527637425981916583742483279156752164398369851274245637819178942635";
-        CheckPuzzleSolution(puzzle, expectedSolution);
+        CheckPuzzleSolution(puzzle);
     }
 
 
@@ -31,8 +29,7 @@ public class MediumSudokuTests : SudokuTestsBase
     public void SolveMediumSudoku4()
     {
         string puzzle = "003000560008030002700500940000600000005273600000009000064002007300060100017000200";
-        string expectedSolution = "493127568658934712721586943879641325145273689236859471964312857382765194517498236";
-        CheckPuzzleSolution(puzzle, expectedSolution);
+        CheckPuzzleSolution(puzzle);
     }
 
 
@@ -40,7 +37,6 @@ public class MediumSudokuTests : SudokuTestsBase
     public void SolveMediumSudoku5()
     {
         string puzzle = "021000007040007600000082500800000370000351000063000002002160000006800010100000490";
-        string expectedSolution = "621435987548917623739682541815296374274351869963748152452169738396874215187523496";
-        CheckPuzzleSolution(puzzle, expectedSolution);
+        CheckPuzzleSolution(puzzle);
     }
 }
