@@ -1,6 +1,6 @@
 using static ArielSudoku.Tests.SudokuTestsBase;
 namespace ArielSudoku.Tests.MediumPuzzle;
-public class EasySudokuTests : SudokuTestsBase
+public class EasySudokuTests 
 {
     [Fact]
     public void SolveEasySudoku1()
