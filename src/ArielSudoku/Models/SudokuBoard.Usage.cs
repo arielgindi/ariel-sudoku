@@ -2,39 +2,46 @@
 
 using ArielSudoku.Exceptions;
 using System.Collections.Generic;
-using static ArielSudoku.Common.Constants;
 using static ArielSudoku.Common.SudokuHelpers;
 
 /// <summary>
-/// Remember row, colum and box usage of 
+/// Remember row, col and box usage of 
 /// digits for faster and easier access.
 /// </summary>
 public sealed partial class SudokuBoard
 {
-    private readonly int[] _rowMask = new int[BoardSize];
-    private readonly int[] _colMask = new int[BoardSize];
-    private readonly int[] _boxMask = new int[BoardSize];
+    private int[] _rowMask = null!;
+    private int[] _colMask = null!;
+    private int[] _boxMask = null!;
 
     // Each cell has a bitmask of valid digits (bits 1..BoardSize).
-    private readonly int[] _cellMasks = new int[CellCount];
+    private int[] _cellMasks = null!;
 
     // Track how many possibilities each cell has,
     // For example: if cell index 55 has 3 valid options, _possPerCell[55] = 3
-    private readonly int[] _possPerCell = new int[CellCount];
+    private int[] _possPerCell = null!;
 
     // Track indexes of cells that are currently empty
-    private readonly List<int> _emptyCells = [];
+    private List<int> _emptyCells = [];
 
     private void SetUsageTracking()
     {
-        for (int cellIndex = 0; cellIndex < CellCount; cellIndex++)
+        _rowMask = new int[_constants.BoardSize];
+        _colMask = new int[_constants.BoardSize];
+        _boxMask = new int[_constants.BoardSize];
+
+        _cellMasks = new int[_constants.CellCount];
+        _possPerCell = new int[_constants.CellCount];
+        _emptyCells = [];
+
+        for (int cellIndex = 0; cellIndex < _constants.CellCount; cellIndex++)
         {
             int digit = this[cellIndex];
             if (digit != 0)
             {
                 if (!IsSafeCell(cellIndex, digit))
                 {
-                    (int row, int col, int _) = CellCoordinates[cellIndex];
+                    (int row, int col, int _) = _constants.CellCoordinates[cellIndex];
                     throw new SudokuInvalidBoardException(
                         $"Invalid sudoku board: the digit {digit} at ({row},{col}) conflicts with existing digits."
                     );
@@ -44,7 +51,7 @@ public sealed partial class SudokuBoard
         }
 
         // Find empty cells and update _cellMasks and _possPerCell
-        for (int cellIndex = 0; cellIndex < CellCount; cellIndex++)
+        for (int cellIndex = 0; cellIndex < _constants.CellCount; cellIndex++)
         {
             if (this[cellIndex] == 0)
             {
@@ -60,7 +67,7 @@ public sealed partial class SudokuBoard
     /// </summary>
     public bool IsSafeCell(int cellIndex, int digit)
     {
-        (int row, int col, int box) = CellCoordinates[cellIndex];
+        (int row, int col, int box) = _constants.CellCoordinates[cellIndex];
         int bit = GetMaskForDigit(digit);
         return ((_rowMask[row] | _colMask[col] | _boxMask[box]) & bit) == 0;
     }
@@ -72,7 +79,7 @@ public sealed partial class SudokuBoard
     {
         PlaceDigitAmount++;
         this[cellIndex] = digit;
-        (int row, int col, int box) = CellCoordinates[cellIndex];
+        (int row, int col, int box) = _constants.CellCoordinates[cellIndex];
 
         _rowMask[row] = SetBit(_rowMask[row], digit);
         _colMask[col] = SetBit(_colMask[col], digit);
@@ -88,7 +95,7 @@ public sealed partial class SudokuBoard
     public void RemoveDigit(int cellIndex, int digit)
     {
         this[cellIndex] = 0;
-        (int row, int col, int box) = CellCoordinates[cellIndex];
+        (int row, int col, int box) = _constants.CellCoordinates[cellIndex];
 
         _rowMask[row] = ClearBit(_rowMask[row], digit);
         _colMask[col] = ClearBit(_colMask[col], digit);
@@ -102,13 +109,15 @@ public sealed partial class SudokuBoard
     }
 
     /// <summary>
-    /// Returns the index of the cell with the fewest valid digits, 
-    /// or -1 if there is no empty cell with any possibilities.
+    /// Find the empty cell with the fewest valid digits, if two cells have the same count, 
+    /// the one that his neighbors have the smallest total possibilities is chosen.
+    /// Return -1 if no valid cell can be found
     /// </summary>
     public int FindLeastOptionsCellIndex()
     {
         int bestCellIndex = -1;
-        int bestCount = BoardSize + 1;
+        int bestCount = _constants.BoardSize + 1;
+        int bestNeighborSum = int.MaxValue;
 
         for (int i = 0; i < _emptyCells.Count; i++)
         {
@@ -120,7 +129,19 @@ public sealed partial class SudokuBoard
                 {
                     bestCount = count;
                     bestCellIndex = cellIndex;
-                    if (bestCount == 1) break;
+                    bestNeighborSum = GetNeighborsPossibilitySum(cellIndex);
+
+                    if (bestCount == 1)
+                        break;
+                }
+                else if (count == bestCount)
+                {
+                    int neighborSum = GetNeighborsPossibilitySum(cellIndex);
+                    if (neighborSum < bestNeighborSum)
+                    {
+                        bestNeighborSum = neighborSum;
+                        bestCellIndex = cellIndex;
+                    }
                 }
             }
         }
@@ -128,16 +149,26 @@ public sealed partial class SudokuBoard
         return bestCellIndex;
     }
 
+    /// <summary>
+    /// Calculate the total possibilities for all neighbors of a specific cell.
+    /// </summary>
+    private int GetNeighborsPossibilitySum(int cellIndex)
+    {
+        int sum = 0;
+        foreach (int neighborIndex in _constants.CellNeighbors[cellIndex])
+        {
+            if (this[neighborIndex] == 0)
+            {
+                sum += _possPerCell[neighborIndex];
+            }
+        }
+        return sum;
+    }
+
+
     public bool IsSolved()
     {
-        // Now check if each row, column, and box has the correct mask
-        for (int i = 0; i < BoardSize; i++)
-        {
-            if (_rowMask[i] != AllPossibleDigitsMask) return false;
-            if (_colMask[i] != AllPossibleDigitsMask) return false;
-            if (_boxMask[i] != AllPossibleDigitsMask) return false;
-        }
-        return true;
+        return _emptyCells.Count == 0;
     }
 
     /// <summary>
@@ -152,7 +183,7 @@ public sealed partial class SudokuBoard
     public int GetOnlyPossibleDigit(int cellIndex)
     {
         int mask = _cellMasks[cellIndex];
-        for (int digit = 1; digit <= BoardSize; digit++)
+        for (int digit = 1; digit <= _constants.BoardSize; digit++)
         {
             int bit = 1 << digit;
             if ((mask & bit) != 0)
@@ -162,51 +193,73 @@ public sealed partial class SudokuBoard
         }
         return 0;
     }
+
     /// <summary>
     /// Updates the possibility masks for neighbors of the given cell
     /// </summary>
     private void UpdateNeighborPossibilities(int cellIndex)
     {
-        foreach (int neighborIndex in CellNeighbors[cellIndex])
+        int digit = _cells[cellIndex];
+        if (digit != 0)
         {
-            if (this[neighborIndex] == 0)
+            // When a digit is placed, update the possibility masks of neighboring cells.
+            foreach (int neighborIndex in _constants.CellNeighbors[cellIndex])
             {
-                _cellMasks[neighborIndex] = CalculateCellMask(neighborIndex);
-                _possPerCell[neighborIndex] = CountBits(_cellMasks[neighborIndex]);
+                if (_cells[neighborIndex] == 0 && HasBitSet(_cellMasks[neighborIndex], digit))
+                {
+                    _cellMasks[neighborIndex] = ClearBit(_cellMasks[neighborIndex], digit);
+                    _possPerCell[neighborIndex]--;
+                }
+            }
+        }
+        else
+        {
+            // When a digit is removed, recalculate the possibility masks of neighboring cells.
+            foreach (int neighborIndex in _constants.CellNeighbors[cellIndex])
+            {
+                if (_cells[neighborIndex] == 0)
+                {
+                    _cellMasks[neighborIndex] = CalculateCellMask(neighborIndex);
+                    _possPerCell[neighborIndex] = CountBits(_cellMasks[neighborIndex]);
+                }
             }
         }
     }
+
     /// <summary>
     /// Get a mask containing all valid digits of a cell index
     /// </summary>
     private int CalculateCellMask(int cellIndex)
     {
-        (int rowIndex, int colIndex, int boxIndex) = CellCoordinates[cellIndex];
+        (int rowIndex, int colIndex, int boxIndex) = _constants.CellCoordinates[cellIndex];
         int combined = _rowMask[rowIndex] | _colMask[colIndex] | _boxMask[boxIndex];
-        return AllPossibleDigitsMask & ~combined;
+        return _constants.AllPossibleDigitsMask & ~combined;
     }
+
     /// <summary>
-    /// Check if any cell has no valid digits or if a digit doesn't have any possibilites
+    /// Check if any cell has no valid digits or if a digit doesn't have any possibilities
     /// This prevents continue to try solving a dead end path.
     /// </summary>
-
     public bool HasDeadEnd()
     {
         foreach (int emptyCellIndex in _emptyCells)
         {
             if (_possPerCell[emptyCellIndex] == 0)
             {
+                HasDeadEndAmount++;
                 return true;
             }
         }
-
-        for (int digit = 1; digit <= BoardSize; digit++)
+        HasDeadEndAmount++;
+        for (int digit = 1; digit <= _constants.BoardSize; digit++)
         {
             int bit = GetMaskForDigit(digit);
-            if (HasNoSpotForDigit(CellsInRow, _rowMask, digit, bit)) return true;
-            if (HasNoSpotForDigit(CellsInCol, _colMask, digit, bit)) return true;
-            if (HasNoSpotForDigit(CellsInBox, _boxMask, digit, bit)) return true;
+            if (HasNoSpotForDigit(_constants.CellsInRow, _rowMask, digit, bit)) return true;
+            if (HasNoSpotForDigit(_constants.CellsInCol, _colMask, digit, bit)) return true;
+            if (HasNoSpotForDigit(_constants.CellsInBox, _boxMask, digit, bit)) return true;
         }
+
+        HasDeadEndAmount--;
         return false;
     }
 
@@ -215,7 +268,7 @@ public sealed partial class SudokuBoard
     /// </summary>
     private bool HasNoSpotForDigit(int[][] units, int[] usageMask, int digit, int bit)
     {
-        for (int i = 0; i < BoardSize; i++)
+        for (int i = 0; i < _constants.BoardSize; i++)
         {
             if ((usageMask[i] & bit) == 0 && !CanDigitFit(units[i], digit))
             {
@@ -246,11 +299,11 @@ public sealed partial class SudokuBoard
     /// <summary>
     /// Helper function for ApplyHiddenSingles
     /// Given a row, col or box to find a number that exist there only once
-    /// For example: if digit 6 is the only possibile digit in that row, it place it there
+    /// For example: if digit 6 is the only possible digit in that row, it place it there
     /// </summary>
     /// <param name="cellsInUnit">Unit of cells to check if there are hidden singles (row, col, or box)</param>
     /// <returns>True if a hidden single was found and placed, else false</returns>
-    public bool FindHiddenSinglesInUnit(int[] cellsInUnit, Stack<(int cellIndex, int digit)>? humanTacticsStack)
+    public bool FindHiddenSinglesInUnit(int[] cellsInUnit, Stack<(int cellIndex, int digit)> humanTacticsStack)
     {
         int hiddenSinglesMask = FindHiddenSinglesMask(cellsInUnit);
         bool changed = false;
@@ -264,7 +317,7 @@ public sealed partial class SudokuBoard
             if (targetCell != -1)
             {
                 PlaceDigit(targetCell, digit);
-                humanTacticsStack?.Push((targetCell, digit));
+                humanTacticsStack.Push((targetCell, digit));
                 changed = true;
             }
 
@@ -277,8 +330,8 @@ public sealed partial class SudokuBoard
 
     /// <summary>
     /// can all empty cells in the unit
-    /// (first storing all possible digits in seenDigits, after that excluding multiple possibilites cells)
-    /// For exmaple: If digit 5 is the only digit in the cell, return it
+    /// (first storing all possible digits in seenDigits, after that excluding multiple possibilities cells)
+    /// For example: If digit 5 is the only digit in the cell, return it
     /// </summary>
     /// <param name="cellsInUnit"></param>
     /// <returns>A bitmask of hidden singles or zero</returns>

@@ -3,7 +3,7 @@
 public sealed partial class SudokuSolver
 {
 
-    private void ApplyHumanTactics(Stack<(int cellIndex, int digit)>? humanTacticsStack)
+    private void ApplyHumanTactics(Stack<(int cellIndex, int digit)> humanTacticsStack)
     {
         bool isChanged;
         do
@@ -28,10 +28,10 @@ public sealed partial class SudokuSolver
     /// </summary>
     /// <param name="humanTacticsStack"></param>
     /// <returns></returns>
-    private bool ApplyNakedSingles(Stack<(int cellIndex, int digit)>? humanTacticsStack)
+    private bool ApplyNakedSingles(Stack<(int cellIndex, int digit)> humanTacticsStack)
     {
         bool isChanged = false;
-        for (int cellIndex = 0; cellIndex < CellCount; cellIndex++)
+        for (int cellIndex = 0; cellIndex < _constants.CellCount; cellIndex++)
         {
             if (_board[cellIndex] == 0 && _board.HasSingleOption(cellIndex))
             {
@@ -48,20 +48,20 @@ public sealed partial class SudokuSolver
 
     /// <summary>
     /// Search for cells that there is only one
-    /// possiblie solution it his same (row, col or box)
-    /// For example: if digit 6 is the only possibile digit in that row, it place it there
+    /// possible solution it their same (row, col or box)
+    /// For example: if digit 6 is the only possible digit in that row, it place it there
     /// </summary>
     /// <param name="humanTacticsStack"></param>
     /// <returns></returns>
-    private bool ApplyHiddenSingles(Stack<(int cellIndex, int digit)>? humanTacticsStack)
+    private bool ApplyHiddenSingles(Stack<(int cellIndex, int digit)> humanTacticsStack)
     {
         bool isChanged = false;
 
-        for (int unitIndex = 0; unitIndex < BoardSize; unitIndex++)
+        for (int unitIndex = 0; unitIndex < _constants.BoardSize; unitIndex++)
         {
-            isChanged |= _board.FindHiddenSinglesInUnit(CellsInRow[unitIndex], humanTacticsStack);
-            isChanged |= _board.FindHiddenSinglesInUnit(CellsInCol[unitIndex], humanTacticsStack);
-            isChanged |= _board.FindHiddenSinglesInUnit(CellsInBox[unitIndex], humanTacticsStack);
+            isChanged |= _board.FindHiddenSinglesInUnit(_constants.CellsInRow[unitIndex], humanTacticsStack);
+            isChanged |= _board.FindHiddenSinglesInUnit(_constants.CellsInCol[unitIndex], humanTacticsStack);
+            isChanged |= _board.FindHiddenSinglesInUnit(_constants.CellsInBox[unitIndex], humanTacticsStack);
         }
 
         return isChanged;

@@ -19,7 +19,7 @@ public class BulkEvilSudokuTests : SudokuTestsBase
 
             try
             {
-                (string solvedPuzzle, int backtrackCount) = SudokuEngine.SolveSudoku(puzzle);
+                (string solvedPuzzle, int guessCount) = SudokuEngine.SolveSudoku(puzzle);
             }
             catch (Exception ex)
             {

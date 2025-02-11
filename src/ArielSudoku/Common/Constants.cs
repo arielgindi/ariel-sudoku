@@ -1,70 +1,65 @@
 ﻿namespace ArielSudoku.Common;
 /// <summary>
-/// Global static class that shares constants globaly
+/// Global static class that share constants globally
 /// </summary>
-public static class Constants
+public sealed class Constants
 {
-    /// <summary>
-    /// Is search made progress, did nothing, or found dead end
-    /// </summary>
-    public enum SearchStatus
-    {
-        /// <summary>
-        /// Mean placed at least one digit (good!)
-        /// </summary>
-        Found,   
-        /// <summary>
-        /// Mean no digits were placed
-        /// </summary>
-        NotFound,
-        /// <summary>
-        /// Mean there is a dead end, need to undo human tactics
-        /// and try another guess on backtracking, or throw if board has no solution 
-        /// </summary>
-        DeadEnd
-    }
-
     // Size of each sub-box, for example 3x3 for a 9x9 Sudoku
     // 3
-    public static readonly int BoxSize = 3;
+    public readonly int BoxSize;
 
     // Length of each rows and columns, for example it will be 9 if BoxLen is 3
     // 9
-    public static readonly int BoardSize = BoxSize * BoxSize;
+    public readonly int BoardSize;
 
     // Total cells in the board, for example 81 for if BoxLen is 3
     // 81
-    public static readonly int CellCount = BoardSize * BoardSize;
+    public readonly int CellCount;
+
+    // Bitmask that store as int an mask that is the same as if the cell
+    // Was the same if cell could contain any digit
+    // For example: if BoardSize == 4 than AllPossibleDigitsMask is 00011110
+    public readonly int AllPossibleDigitsMask;
+
 
     // Holds the (row, col, box) per each cell so no recomputing every time for fast access
-    public static readonly (int row, int col, int box)[] CellCoordinates;
+    public (int row, int col, int box)[] CellCoordinates { get; }
 
 
     // Arrays that holds all cells in a specific row, column, or box
     // For example: if you CellsInBox[5] (which is box number 4), you will get
     // An array containing all of the cellIndexes inside that box
-    public static readonly int[][] CellsInRow = new int[BoardSize][];
-    public static readonly int[][] CellsInCol = new int[BoardSize][];
-    public static readonly int[][] CellsInBox = new int[BoardSize][];
+    public int[][] CellsInRow { get; }
+    public int[][] CellsInCol { get; }
+    public int[][] CellsInBox { get; }
 
-    // Bitmask that store as int an mask that is the same as if the cell
-    // Was the same if cell could contain any digit
-    // For example: if BoardSize == 4 than AllPossibiliteDigitsMask is 00011110
-    public static readonly int AllPossibleDigitsMask = ((1 << BoardSize) - 1) << 1;
-   
+
+
     /// <summary>
     /// Store all cells that share the same (row, col, box) with each cell.
     /// </summary>
 
-    public static readonly int[][] CellNeighbors = new int[CellCount][];
+    public int[][] CellNeighbors { get; }
 
     /// <summary>
-    /// Static constractor that only run one before access any constant inside this file
-    /// It fills the CellCoordinantes once in the runtine lifetime, so less total calculations
+    /// Static constructor that only run one before access any constant inside this file
+    /// It fills the CellCoordinates once in the runtime lifetime, so less total calculations
     /// </summary>
-    static Constants()
+    public Constants(int boxSize)
     {
+        BoxSize = boxSize;
+
+        // Precompute simple constants
+        BoardSize = BoxSize * BoxSize;
+        CellCount = BoardSize * BoardSize;
+        AllPossibleDigitsMask = ((1 << BoardSize) - 1) << 1;
+
+        // Assign sizes to arrays
         CellCoordinates = new (int, int, int)[CellCount];
+        CellsInRow = new int[BoardSize][];
+        CellsInCol = new int[BoardSize][];
+        CellsInBox = new int[BoardSize][];
+        CellNeighbors = new int[CellCount][];
 
         for (int i = 0; i < BoardSize; i++)
         {
@@ -104,7 +99,7 @@ public static class Constants
                 .. CellsInBox[box],
             ];
 
-            // Remove the cell itself, because he is not his neighbors
+            // Remove the cell itself, because he isn't his own neighbors
             neighbors.Remove(cellIndex);
 
             // Store the peer set as an array
