@@ -1,56 +1,74 @@
 ﻿namespace ArielSudoku.Models;
 
-using static ArielSudoku.SudokuHelpers;
-using static ArielSudoku.Common.Constants;
+using ArielSudoku.Common;
+using ArielSudoku.Exceptions;
 
 /// <summary>
 /// A 9x9 Sudoku board stored as an array of chars.
 /// </summary>
 public sealed partial class SudokuBoard
 {
-    private readonly char[] _cells = new char[CellCount];
-
-    public SudokuBoard(string input)
+    private readonly int[] _cells;
+    public readonly Constants _constants ;
+    public readonly RuntimeStatistics  runtimeStats;
+    private readonly bool _neighborCheckInMRV;
+    public SudokuBoard(string puzzleString, bool findNextCellSmartly)
     {
-        if (input == null)
-            throw new ArgumentNullException(nameof(input));
+        _neighborCheckInMRV = findNextCellSmartly;
+        int length = puzzleString.Length;
+        int boxSize = SudokuHelpers.CalculateBoxSize(length);
+        runtimeStats = new RuntimeStatistics();
 
-        if (input.Length != CellCount)
-            throw new ArgumentException($"Board must be exactly {CellCount} characters.");
+        _constants = ConstantsManager.GetOrCreateConstants(boxSize);
+        // Make sure the puzzle string length matches the constants
+        if (length != _constants.CellCount)
+        {
+            throw new InputInvalidLengthException(
+                $"Puzzle length = {length}, expected = {_constants.CellCount}."
+            );
+        }
 
-        InitializeBoardFromString(input);
+        // Allocate the array of cells for the puzzle
+        _cells = new int[_constants.CellCount];
+        InitializeBoardFromString(puzzleString);
         SetUsageTracking();
-        InitializeEmptyCellsList();
     }
 
     private void InitializeBoardFromString(string input)
     {
-        for (int cellNumber = 0; cellNumber < CellCount; cellNumber++)
+        for (int cellNumber = 0; cellNumber < _constants.CellCount; cellNumber++)
         {
             char ch = input[cellNumber];
             if (ch == '.') ch = '0';
+            int digit = ch - '0';
 
-            // Ensure c is between '0' - '9'
-            int row, col;
-            (row, col, _) = GetCellCoordinates(cellNumber);
-            if (ch < '0' || ch > (char)('0' + BoardSize))
+
+            if (digit < 0 || _constants.BoardSize < digit)
             {
-                throw new FormatException(
-                    $"Invalid board: '{ch}' at cell ({row},{col}). " +
-                    $"Allowed characters are '0'-'{BoardSize}' or '.'."
+                // Ensure c is between '0' - '9'
+                int row = _constants.CellCoordinates[cellNumber].row;
+                int col = _constants.CellCoordinates[cellNumber].col;
+                throw new SudokuInvalidBoardException(
+                    $"Invalid board: '{digit}' at cell ({row},{col}). " +
+                    $"Allowed characters are '0'-'{_constants.BoardSize}' or '.'."
                 );
             }
 
-            _cells[cellNumber] = ch;
+            _cells[cellNumber] = digit;
         }
     }
-
-    public char this[int cellNumber]
+    public int this[int cellNumber]
     {
         get => _cells[cellNumber];
         set => _cells[cellNumber] = value;
     }
-    private bool IsComplete => EmptyCells.Count == 0;
-
-    public override string ToString() => new(_cells);
+    public override string ToString()
+    {
+        char[] result = new char[_constants.CellCount];
+        for (int i = 0; i < _constants.CellCount; i++)
+        {
+            result[i] = (char)(_cells[i] + '0');
+        }
+        return new string(result);
+    }
 }

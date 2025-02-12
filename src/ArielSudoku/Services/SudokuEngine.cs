@@ -1,33 +1,52 @@
-﻿using ArielSudoku.Models;
-
+﻿using ArielSudoku.Exceptions;
+using ArielSudoku.Models;
+using ArielSudoku.Services;
 public static class SudokuEngine
 {
     /// <summary>
-    /// Solves a Sudoku puzzle in one call.
+    /// Solves a Sudoku puzzle in one call
     /// </summary>
     /// <param name="puzzleString">
-    /// 81-character puzzle string where '0' indicates an empty cell.
+    /// Sudoku puzzle string where '0' indicates an empty cell
     /// </param>
     /// <returns>
-    /// The solved Sudoku puzzle as an 81-character string.
+    /// The solved Sudoku puzzle as a string
     /// </returns>
-    /// <exception cref="ArgumentException">
-    /// Thrown if <paramref name="puzzleString"/> is not 81 characters long.
+    /// <exception cref="InputInvalidLengthException">
+    /// Thrown if <paramref name="puzzleString"/> is not 81 characters long
     /// </exception>
-    /// <exception cref="InvalidOperationException">
-    /// Thrown if the puzzle is unsolvable.
+    /// <exception cref="UnsolvableSudokuException">
+    /// Thrown if the puzzle is unsolvable
     /// </exception>
-    public static string SolveSudoku(string puzzleString)
+    public static (string solvedPuzzle, RuntimeStatistics runtimeStats) SolveSudoku(string puzzleString)
     {
-        // 1. Parse into a SudokuBoard.
-        SudokuBoard board = new(puzzleString);
+        CancellationTokenSource cancellationToken = new();
 
-        // 2. Solve the board.
-        SudokuSolver solver = new(board);
-        solver.Solve();
+        SudokuBoard firstBoard = new(puzzleString, true);
+        SudokuSolver firstSolver = new(firstBoard, cancellationToken.Token);
 
-        // 4. Convert the solved board back to string.
-        string solvedPuzzle = board.ToString();
-        return solvedPuzzle;
+        SudokuBoard secondBoard = new(puzzleString, false);
+        SudokuSolver secondSolver = new(secondBoard, cancellationToken.Token);
+
+        Task task1 = Task.Run(firstSolver.Solve);
+        Task task2 = Task.Run(secondSolver.Solve);
+
+        int firstSolvedIndex = Task.WaitAny(task1, task2);
+        cancellationToken.Cancel();
+    
+
+
+        Task finishedTask = firstSolvedIndex == 0 ? task1 : task2;
+        SudokuBoard solvedBoard = firstSolvedIndex == 0 ? firstBoard : secondBoard;
+
+        if (finishedTask.IsFaulted)
+        {
+            throw finishedTask.Exception.GetBaseException();
+        }
+
+        // Convert the solved board back to string.
+        string solvedPuzzle = solvedBoard.ToString();
+        RuntimeStatistics runtimeStats = solvedBoard.runtimeStats;
+        return (solvedPuzzle, runtimeStats);
     }
 }

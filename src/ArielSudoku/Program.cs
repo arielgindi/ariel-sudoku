@@ -1,4 +1,4 @@
-﻿using System;
+﻿using ArielSudoku.CLI;
 
 namespace ArielSudoku
 {

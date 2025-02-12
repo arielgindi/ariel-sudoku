@@ -1,9 +1,11 @@
-﻿namespace ArielSudoku.Tests;
-public abstract class SudokuTestsBase
+﻿using static ArielSudoku.Common.SudokuHelpers;
+
+namespace ArielSudoku.Tests;
+public static class SudokuTestsBase
 {
-    protected void CheckPuzzleSolution(string puzzle, string expectedSolution)
+    public static void CheckPuzzleSolution(string givenPuzzle)
     {
-        string actualSolution = SudokuEngine.SolveSudoku(puzzle);
-        Assert.Equal(expectedSolution, actualSolution);
+        (string solvedPuzzle, _) = SudokuEngine.SolveSudoku(givenPuzzle);
+        IsValidSolution(solvedPuzzle, givenPuzzle);
     }
 }
