@@ -1,4 +1,6 @@
-﻿namespace ArielSudoku.Services;
+﻿using ArielSudoku.Models;
+
+namespace ArielSudoku.Services;
 public sealed partial class SudokuSolver
 {
     /// <summary>
@@ -15,7 +17,6 @@ public sealed partial class SudokuSolver
             return false;
         }
 
-
         // Meaning board is solved
         if (_board.IsSolved())
         {
@@ -29,6 +30,9 @@ public sealed partial class SudokuSolver
             return false;
         }
 
+        // Take a snapshot of the boardUsage before a guess
+        SudokuBoard.SudokuSnapshot snapshot = _board.TakeSnapshot();
+
         // Try digits 1-boardSize
         for (int digit = 1; digit <= _constants.BoardSize; digit++)
         {
@@ -37,13 +41,13 @@ public sealed partial class SudokuSolver
 
             _runtimeStats.GuessCount++;
             _board.PlaceDigit(cellNumber, digit);
-            Stack<(int cellIndex, int digit)> humanTacticsStack = new();
-            ApplyHumanTactics(humanTacticsStack);
+
+            ApplyHumanTactics();
 
             if (_board.HasDeadEnd())
             {
-                UndoHumanTacticsMoves(humanTacticsStack);
-                _board.RemoveDigit(cellNumber, digit);
+                // If it's a dead end, restore the snapshot and skip to the next digit
+                _board.RestoreSnapshot(snapshot);
                 continue;
             }
 
@@ -52,9 +56,7 @@ public sealed partial class SudokuSolver
                 return true;
             }
 
-            UndoHumanTacticsMoves(humanTacticsStack);
-            _board.RemoveDigit(cellNumber, digit);
-
+            _board.RestoreSnapshot(snapshot);
         }
         return false;
     }

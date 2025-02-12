@@ -3,19 +3,19 @@
 public sealed partial class SudokuSolver
 {
 
-    private void ApplyHumanTactics(Stack<(int cellIndex, int digit)> humanTacticsStack)
+    private void ApplyHumanTactics()
     {
         bool isChanged;
         do
         {
             isChanged = false;
 
-            while (ApplyNakedSingles(humanTacticsStack))
+            while (ApplyNakedSingles())
             {
                 isChanged = true;
             }
 
-            if (ApplyHiddenSingles(humanTacticsStack))
+            if (ApplyHiddenSingles())
             {
                 isChanged = true;
             }
@@ -28,7 +28,7 @@ public sealed partial class SudokuSolver
     /// </summary>
     /// <param name="humanTacticsStack"></param>
     /// <returns></returns>
-    private bool ApplyNakedSingles(Stack<(int cellIndex, int digit)> humanTacticsStack)
+    private bool ApplyNakedSingles()
     {
         bool isChanged = false;
         for (int cellIndex = 0; cellIndex < _constants.CellCount; cellIndex++)
@@ -38,7 +38,6 @@ public sealed partial class SudokuSolver
                 int digit = _board.GetOnlyPossibleDigit(cellIndex);
                 _board.PlaceDigit(cellIndex, digit);
                 isChanged = true;
-                humanTacticsStack.Push((cellIndex, digit));
 
                 _runtimeStats.NakedSinglesCount++;
             }
@@ -53,28 +52,17 @@ public sealed partial class SudokuSolver
     /// </summary>
     /// <param name="humanTacticsStack"></param>
     /// <returns></returns>
-    private bool ApplyHiddenSingles(Stack<(int cellIndex, int digit)> humanTacticsStack)
+    private bool ApplyHiddenSingles()
     {
         bool isChanged = false;
 
         for (int unitIndex = 0; unitIndex < _constants.BoardSize; unitIndex++)
         {
-            isChanged |= _board.FindHiddenSinglesInUnit(_constants.CellsInRow[unitIndex], humanTacticsStack);
-            isChanged |= _board.FindHiddenSinglesInUnit(_constants.CellsInCol[unitIndex], humanTacticsStack);
-            isChanged |= _board.FindHiddenSinglesInUnit(_constants.CellsInBox[unitIndex], humanTacticsStack);
+            isChanged |= _board.FindHiddenSinglesInUnit(_constants.CellsInRow[unitIndex]);
+            isChanged |= _board.FindHiddenSinglesInUnit(_constants.CellsInCol[unitIndex]);
+            isChanged |= _board.FindHiddenSinglesInUnit(_constants.CellsInBox[unitIndex]);
         }
 
         return isChanged;
-    }
-
-
-
-    private void UndoHumanTacticsMoves(Stack<(int cellIndex, int digit)> humanTacticsStack)
-    {
-        while (humanTacticsStack.Count > 0)
-        {
-            (int cellIndex, int digit) = humanTacticsStack.Pop();
-            _board.RemoveDigit(cellIndex, digit);
-        }
     }
 }

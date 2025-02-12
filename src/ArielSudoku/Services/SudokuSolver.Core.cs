@@ -28,8 +28,7 @@ public sealed partial class SudokuSolver
     {
         _stopwatch.Start();
 
-        Stack<(int cellIndex, int digit)> stack = new();
-        ApplyHumanTactics(stack);
+        ApplyHumanTactics();
 
         if (_board.HasDeadEnd())
         {

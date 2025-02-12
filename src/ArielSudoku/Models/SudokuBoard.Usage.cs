@@ -310,7 +310,7 @@ public sealed partial class SudokuBoard
     /// </summary>
     /// <param name="cellsInUnit">Unit of cells to check if there are hidden singles (row, col, or box)</param>
     /// <returns>True if a hidden single was found and placed, else false</returns>
-    public bool FindHiddenSinglesInUnit(int[] cellsInUnit, Stack<(int cellIndex, int digit)> humanTacticsStack)
+    public bool FindHiddenSinglesInUnit(int[] cellsInUnit)
     {
         int hiddenSinglesMask = FindHiddenSinglesMask(cellsInUnit);
         bool changed = false;
@@ -324,7 +324,6 @@ public sealed partial class SudokuBoard
             if (targetCell != -1)
             {
                 PlaceDigit(targetCell, digit);
-                humanTacticsStack.Push((targetCell, digit));
                 changed = true;
                 runtimeStats.HiddenSinlgesCount++;
             }
