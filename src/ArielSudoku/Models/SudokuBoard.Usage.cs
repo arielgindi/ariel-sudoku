@@ -22,7 +22,7 @@ public sealed partial class SudokuBoard
 
     // Track indexes of cells that are currently empty
     private List<int> _emptyCells = [];
-    
+
     private void SetUsageTracking()
     {
         _rowMask = new int[_constants.BoardSize];
@@ -108,67 +108,53 @@ public sealed partial class SudokuBoard
     }
 
     /// <summary>
-    /// Find the empty cell with the fewest valid digits, if two cells have the same count, 
-    /// the one that his neighbors have the smallest total possibilities is chosen.
+    /// Find the empty cell with the fewest valid digits, 
+    /// If if _neighborCheckInMRV is set to false return that cell with least amount of digits
+    /// Else return the cellIndex that his neighbors have the smallest total possibilities is chosen.
     /// Return -1 if no valid cell can be found
     /// </summary>
     public int FindLeastOptionsCellIndex()
     {
-        int bestCellIndex = -1;
-        int bestCount = _constants.BoardSize + 1;
-
-        if (_findNextCellSmartly)
+        if (_neighborCheckInMRV)
         {
-            int bestNeighborSum = int.MaxValue;
+            return FindCellWithNeighborCheck();
+        }
+        return FindCellWithoutNeighborCheck();
+    }
 
-            for (int i = 0; i < _emptyCells.Count; i++)
-            {
-                int cellIndex = _emptyCells[i];
-                if (this[cellIndex] != 0)
-                    continue;
-
-                int count = _possPerCell[cellIndex];
-                if (count < bestCount)
-                {
-                    bestCount = count;
-                    bestCellIndex = cellIndex;
-                    bestNeighborSum = GetNeighborsPossibilitySum(cellIndex);
-
-                    if (bestCount == 1)
-                        break;
-                }
-                else if (count == bestCount)
-                {
-                    int neighborSum = GetNeighborsPossibilitySum(cellIndex);
-                    if (neighborSum < bestNeighborSum)
-                    {
-                        bestNeighborSum = neighborSum;
-                        bestCellIndex = cellIndex;
-                    }
-                }
-            }
-
-            return bestCellIndex;
+    
+    private int FindCellWithoutNeighborCheck()
+    {
+        // If no empty cells, return -1
+        if (IsSolved())
+        {
+            return -1;
         }
 
 
+        // MinBy in this line return the cellIndex of the cell index has the lowest possibilites value
+        return _emptyCells.MinBy(cellIndex => _possPerCell[cellIndex]);
+    }
 
-        for (int i = 0; i < _emptyCells.Count; i++)
-        {
-            int cellIndex = _emptyCells[i];
-            if (this[cellIndex] == 0)
-            {
-                int count = _possPerCell[cellIndex];
-                if (count < bestCount)
-                {
-                    bestCount = count;
-                    bestCellIndex = cellIndex;
-                    if (bestCount == 1) break;
-                }
-            }
-        }
 
-        return bestCellIndex;
+    private int FindCellWithNeighborCheck()
+    {
+        // First check: find 
+        int fewestOptionsIndex = FindCellWithoutNeighborCheck();
+        
+        // Meaning the board is solved
+        if (fewestOptionsIndex == -1) return -1;
+
+        // Second check: get cells that has the same amount of possibilites
+        // Get how many possibilities that cell has
+        int optionsCount = _possPerCell[fewestOptionsIndex];
+        int[] bestCells = _emptyCells
+            .Where(cellIndex => _possPerCell[cellIndex] == optionsCount)
+            .ToArray();
+
+        // Third check: set chosenCellIndex to be the cell index with fewest possibilites 
+        // MinBy in this line return the index of the cell index hat GetNeighborsPossibilitySum returned him the lowest value
+        return bestCells.MinBy(GetNeighborsPossibilitySum);
     }
 
     /// <summary>
