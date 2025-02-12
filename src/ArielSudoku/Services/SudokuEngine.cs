@@ -20,16 +20,16 @@ public static class SudokuEngine
     /// </exception>
     public static (string solvedPuzzle, RuntimeStatistics runtimeStats) SolveSudoku(string puzzleString)
     {
+        CancellationTokenSource cancellationToken = new();
+
         SudokuBoard firstBoard = new(puzzleString, true);
-        SudokuSolver firstSolver = new(firstBoard);
+        SudokuSolver firstSolver = new(firstBoard, cancellationToken.Token);
 
         SudokuBoard secondBoard = new(puzzleString, false);
-        SudokuSolver secondSolver = new(secondBoard);
+        SudokuSolver secondSolver = new(secondBoard, cancellationToken.Token);
 
-        CancellationTokenSource cancellationToken = new ();
-
-        Task task1 = Task.Run(() => firstSolver.Solve(cancellationToken.Token));
-        Task task2 = Task.Run(() => secondSolver.Solve(cancellationToken.Token));
+        Task task1 = Task.Run(firstSolver.Solve);
+        Task task2 = Task.Run(secondSolver.Solve);
 
         int firstSolvedIndex = Task.WaitAny(task1, task2);
         cancellationToken.Cancel();

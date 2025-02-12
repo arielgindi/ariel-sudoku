@@ -1,6 +1,4 @@
-﻿using System.Threading;
-
-namespace ArielSudoku.Services;
+﻿namespace ArielSudoku.Services;
 public sealed partial class SudokuSolver
 {
     /// <summary>
@@ -12,17 +10,10 @@ public sealed partial class SudokuSolver
     /// <exception cref="TimeoutException">Thrown if took more than 1 sec to solve</exception>
     private bool Backtrack()
     {
-
-        // Only check if it took more than 1 sec every 1000 calls to improve performance
-        if (_CheckFrequency == 0 && _stopwatch.ElapsedMilliseconds > _TimeLimitMilliseconds)
+        if (_cancellationToken.IsCancellationRequested)
         {
-            if (_cancellationToken.IsCancellationRequested)
-            {
-                throw new OperationCanceledException("This proccess was closeds");
-            }
-            throw new TimeoutException($"Puzzle took more than {_TimeLimitMilliseconds / 1000} to solve.");
+            return false;
         }
-
 
 
         // Meaning board is solved
@@ -41,28 +32,29 @@ public sealed partial class SudokuSolver
         // Try digits 1-boardSize
         for (int digit = 1; digit <= _constants.BoardSize; digit++)
         {
-            if (_board.IsSafeCell(cellNumber, digit))
+            if (!_board.IsSafeCell(cellNumber, digit))
+                continue;
+
+            _runtimeStats.GuessCount++;
+            _board.PlaceDigit(cellNumber, digit);
+            Stack<(int cellIndex, int digit)> humanTacticsStack = new();
+            ApplyHumanTactics(humanTacticsStack);
+
+            if (_board.HasDeadEnd())
             {
-                _runtimeStats.GuessCount++;
-                _board.PlaceDigit(cellNumber, digit);
-                Stack<(int cellIndex, int digit)> humanTacticsStack = new();
-                ApplyHumanTactics(humanTacticsStack);
-
-                if (_board.HasDeadEnd())
-                {
-                    UndoHumanTacticsMoves(humanTacticsStack);
-                    _board.RemoveDigit(cellNumber, digit);
-                    continue;
-                }
-
-                if (_board.IsSolved() || Backtrack())
-                {
-                    return true;
-                }
-
                 UndoHumanTacticsMoves(humanTacticsStack);
                 _board.RemoveDigit(cellNumber, digit);
+                continue;
             }
+
+            if (_board.IsSolved() || Backtrack())
+            {
+                return true;
+            }
+
+            UndoHumanTacticsMoves(humanTacticsStack);
+            _board.RemoveDigit(cellNumber, digit);
+
         }
         return false;
     }
