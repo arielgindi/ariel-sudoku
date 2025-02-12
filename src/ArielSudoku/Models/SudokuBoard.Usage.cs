@@ -77,7 +77,7 @@ public sealed partial class SudokuBoard
     /// </summary>
     public void PlaceDigit(int cellIndex, int digit)
     {
-        PlaceDigitAmount++;
+        runtimeStats.PlaceDigitCount++;
         this[cellIndex] = digit;
         (int row, int col, int box) = _constants.CellCoordinates[cellIndex];
 
@@ -246,11 +246,11 @@ public sealed partial class SudokuBoard
         {
             if (_possPerCell[emptyCellIndex] == 0)
             {
-                HasDeadEndAmount++;
+                runtimeStats.FoundDeadEndCount++;
                 return true;
             }
         }
-        HasDeadEndAmount++;
+        runtimeStats.FoundDeadEndCount++;
         for (int digit = 1; digit <= _constants.BoardSize; digit++)
         {
             int bit = GetMaskForDigit(digit);
@@ -258,8 +258,7 @@ public sealed partial class SudokuBoard
             if (HasNoSpotForDigit(_constants.CellsInCol, _colMask, digit, bit)) return true;
             if (HasNoSpotForDigit(_constants.CellsInBox, _boxMask, digit, bit)) return true;
         }
-
-        HasDeadEndAmount--;
+        runtimeStats.FoundDeadEndCount--;
         return false;
     }
 
@@ -319,6 +318,7 @@ public sealed partial class SudokuBoard
                 PlaceDigit(targetCell, digit);
                 humanTacticsStack.Push((targetCell, digit));
                 changed = true;
+                runtimeStats.HiddenSinlgesCount++;
             }
 
             hiddenSinglesMask = ClearBit(hiddenSinglesMask, digit);

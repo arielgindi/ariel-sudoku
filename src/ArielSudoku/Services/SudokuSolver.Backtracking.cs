@@ -35,7 +35,7 @@ public sealed partial class SudokuSolver
         {
             if (_board.IsSafeCell(cellNumber, digit))
             {
-                GuessCount++;
+                _runtimeStats.GuessCount++;
                 _board.PlaceDigit(cellNumber, digit);
                 Stack<(int cellIndex, int digit)> humanTacticsStack = new();
                 ApplyHumanTactics(humanTacticsStack);

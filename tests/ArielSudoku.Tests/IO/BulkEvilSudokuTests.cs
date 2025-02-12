@@ -1,5 +1,4 @@
-﻿using static ArielSudoku.Tests.SudokuTestsBase;
-namespace ArielSudoku.Tests.IO;
+﻿namespace ArielSudoku.Tests.IO;
 
 public class BulkEvilSudokuTests
 {
@@ -20,7 +19,7 @@ public class BulkEvilSudokuTests
 
             try
             {
-                (string solvedPuzzle, int guessCount) = SudokuEngine.SolveSudoku(puzzle);
+                (string solvedPuzzle, _) = SudokuEngine.SolveSudoku(puzzle);
             }
             catch (Exception ex)
             {

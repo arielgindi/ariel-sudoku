@@ -111,7 +111,7 @@ internal static class CliHandler
                 _totalPuzzlesProcessed++;
 
                 Stopwatch stopwatch = Stopwatch.StartNew();
-                (string solvedPuzzle, int guessCount) = SudokuEngine.SolveSudoku(givenPuzzle);
+                (string solvedPuzzle, RuntimeStatistics runtimeStats) = SudokuEngine.SolveSudoku(givenPuzzle);
                 stopwatch.Stop();
 
                 Console.WriteLine($"{GREEN}Result{RESET}: {YELLOW}{solvedPuzzle}{RESET} ({SudokuHelpers.GetFormattedTime(stopwatch.Elapsed.TotalMilliseconds)})");
@@ -119,7 +119,11 @@ internal static class CliHandler
 
                 if (_showMore)
                 {
-                    Console.WriteLine($"{GREEN}Total guesses: {RESET}{guessCount}{RESET}{CYAN}");
+                    Console.WriteLine($"{GREEN}Guesses count               : {RESET}{runtimeStats.GuessCount}{RESET}{CYAN}");
+                    Console.WriteLine($"{GREEN}Found dead end count        : {RESET}{runtimeStats.FoundDeadEndCount}{RESET}{CYAN}");
+                    Console.WriteLine($"{GREEN}Placed naked sinlges count  : {RESET}{runtimeStats.NakedSinglesCount}{RESET}{CYAN}");
+                    Console.WriteLine($"{GREEN}Placed hidden singles count : {RESET}{runtimeStats.HiddenSinlgesCount}{RESET}{CYAN}");
+                    Console.WriteLine($"{GREEN}Placed digit count          : {RESET}{runtimeStats.PlaceDigitCount}{RESET}{CYAN}");
                 }
             }
             catch (Exception ex)

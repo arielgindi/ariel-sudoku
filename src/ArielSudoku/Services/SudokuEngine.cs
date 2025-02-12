@@ -1,4 +1,5 @@
-﻿using ArielSudoku.Exceptions;
+﻿using ArielSudoku.CLI;
+using ArielSudoku.Exceptions;
 using ArielSudoku.Models;
 using ArielSudoku.Services;
 public static class SudokuEngine
@@ -18,7 +19,7 @@ public static class SudokuEngine
     /// <exception cref="UnsolvableSudokuException">
     /// Thrown if the puzzle is unsolvable
     /// </exception>
-    public static (string solvedPuzzle, int guessCount) SolveSudoku(string puzzleString)
+    public static (string solvedPuzzle, RuntimeStatistics runtimeStats) SolveSudoku(string puzzleString)
     {
         // 1. Parse into a SudokuBoard.
         SudokuBoard board = new(puzzleString);
@@ -29,7 +30,7 @@ public static class SudokuEngine
 
         // 3. Convert the solved board back to string.
         string solvedPuzzle = board.ToString();
-        int guessCount = solver.GuessCount;
-        return (solvedPuzzle, guessCount);
+        RuntimeStatistics runtimeStats = board.runtimeStats;
+        return (solvedPuzzle, runtimeStats);
     }
 }

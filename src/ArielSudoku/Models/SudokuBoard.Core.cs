@@ -1,5 +1,6 @@
 ﻿namespace ArielSudoku.Models;
 
+using ArielSudoku.CLI;
 using ArielSudoku.Common;
 using ArielSudoku.Exceptions;
 
@@ -9,17 +10,15 @@ using ArielSudoku.Exceptions;
 public sealed partial class SudokuBoard
 {
     private readonly int[] _cells;
-    public int PlaceDigitAmount { get; private set; } = 0;
-    public int HasDeadEndAmount { get; private set; } = 0;
     public readonly Constants _constants ;
-
+    public readonly RuntimeStatistics  runtimeStats;
     public SudokuBoard(string puzzleString)
     {
         int length = puzzleString.Length;
         int boxSize = SudokuHelpers.CalculateBoxSize(length);
+        runtimeStats = new RuntimeStatistics();
 
         _constants = ConstantsManager.GetOrCreateConstants(boxSize);
-
         // Make sure the puzzle string length matches the constants
         if (length != _constants.CellCount)
         {

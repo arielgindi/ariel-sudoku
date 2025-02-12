@@ -38,9 +38,9 @@ public sealed partial class SudokuSolver
                 int digit = _board.GetOnlyPossibleDigit(cellIndex);
                 _board.PlaceDigit(cellIndex, digit);
                 isChanged = true;
+                humanTacticsStack.Push((cellIndex, digit));
 
-                // Push if not null
-                humanTacticsStack?.Push((cellIndex, digit));
+                _runtimeStats.NakedSinglesCount++;
             }
         }
         return isChanged;
