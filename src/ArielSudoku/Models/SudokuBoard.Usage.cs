@@ -42,7 +42,7 @@ public sealed partial class SudokuBoard
                 {
                     (int row, int col, int _) = _constants.CellCoordinates[cellIndex];
                     throw new SudokuInvalidBoardException(
-                        $"Invalid sudoku board: the digit {digit} at ({row},{col}) conflicts with existing digits."
+                        $"Invalid sudoku board: the digit {(char)(digit + '0')} at ({row},{col}) conflicts with existing digits."
                     );
                 }
                 PlaceDigit(cellIndex, digit);

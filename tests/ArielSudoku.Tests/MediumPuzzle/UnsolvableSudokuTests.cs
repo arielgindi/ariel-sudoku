@@ -1,5 +1,4 @@
-﻿using static ArielSudoku.Tests.SudokuTestsBase;
-using ArielSudoku.Exceptions;
+﻿using ArielSudoku.Exceptions;
 
 namespace ArielSudoku.Tests.MediumPuzzle;
 /// <summary>
