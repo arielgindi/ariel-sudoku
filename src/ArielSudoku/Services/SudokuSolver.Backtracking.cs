@@ -1,4 +1,6 @@
-﻿namespace ArielSudoku.Services;
+﻿using System.Threading;
+
+namespace ArielSudoku.Services;
 public sealed partial class SudokuSolver
 {
     /// <summary>
@@ -14,8 +16,14 @@ public sealed partial class SudokuSolver
         // Only check if it took more than 1 sec every 1000 calls to improve performance
         if (_CheckFrequency == 0 && _stopwatch.ElapsedMilliseconds > _TimeLimitMilliseconds)
         {
+            if (_cancellationToken.IsCancellationRequested)
+            {
+                throw new OperationCanceledException("This proccess was closeds");
+            }
             throw new TimeoutException($"Puzzle took more than {_TimeLimitMilliseconds / 1000} to solve.");
         }
+
+
 
         // Meaning board is solved
         if (_board.IsSolved())

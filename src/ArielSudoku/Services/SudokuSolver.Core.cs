@@ -12,6 +12,7 @@ public sealed partial class SudokuSolver
     private const int _CheckFrequency = 1000;
     private readonly Constants _constants;
     private readonly RuntimeStatistics _runtimeStats;
+    private readonly CancellationToken _cancellationToken;
     public SudokuSolver(SudokuBoard sudokuBoard)
     {
         _stopwatch = new Stopwatch();
@@ -24,7 +25,7 @@ public sealed partial class SudokuSolver
     /// Try to solve the board up to 1 sec
     /// </summary>
     /// <exception cref="UnsolvableSudokuException">Thrown if puzzle cannot be solved</exception>
-    public void Solve()
+    public void Solve(CancellationToken cancellationToken = default)
     {
         _stopwatch.Start();
 
@@ -35,17 +36,22 @@ public sealed partial class SudokuSolver
         {
             throw new UnsolvableSudokuException("Puzzle is unsolvable");
         }
-
-        bool solved = Backtrack();
-        if (!solved)
+        try
         {
-            Console.WriteLine($"PlaceDigitAmount: {_runtimeStats.PlaceDigitCount}");
-            Console.WriteLine($"Time it took: {SudokuHelpers.GetFormattedTime(_stopwatch.Elapsed.TotalMilliseconds)}");
-            Console.WriteLine($"Backtracking steps: {_runtimeStats.GuessCount}");
-            Console.WriteLine($"Dead end was found: {_runtimeStats.FoundDeadEndCount}");
-            throw new UnsolvableSudokuException("Puzzle is unsolvable");
+            bool solved = Backtrack();
+            if (!solved)
+            {
+                Console.WriteLine($"PlaceDigitAmount: {_runtimeStats.PlaceDigitCount}");
+                Console.WriteLine($"Time it took: {SudokuHelpers.GetFormattedTime(_stopwatch.Elapsed.TotalMilliseconds)}");
+                Console.WriteLine($"Backtracking steps: {_runtimeStats.GuessCount}");
+                Console.WriteLine($"Dead end was found: {_runtimeStats.FoundDeadEndCount}");
+                throw new UnsolvableSudokuException("Puzzle is unsolvable");
+            }
         }
+        catch (OperationCanceledException)
+        {
 
+        }
         //Console.WriteLine($"Dead end was found: {_board.HasDeadEndAmount}");
     }
 }

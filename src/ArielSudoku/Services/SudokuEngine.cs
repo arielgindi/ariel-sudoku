@@ -26,24 +26,23 @@ public static class SudokuEngine
         SudokuBoard secondBoard = new(puzzleString, false);
         SudokuSolver secondSolver = new(secondBoard);
 
-        Task task1 = Task.Run(firstSolver.Solve);
-        Task task2 = Task.Run(secondSolver.Solve);
+        CancellationTokenSource cancellationToken = new ();
 
+        Task task1 = Task.Run(() => firstSolver.Solve(cancellationToken.Token));
+        Task task2 = Task.Run(() => secondSolver.Solve(cancellationToken.Token));
 
         int firstSolvedIndex = Task.WaitAny(task1, task2);
-
-        if (task1.IsFaulted)
-        {
-            throw task1.Exception.GetBaseException();
-        }
-
-        if (task2.IsFaulted)
-        {
-            throw task2.Exception.GetBaseException();
-        }
+        cancellationToken.Cancel();
+    
 
 
+        Task finishedTask = firstSolvedIndex == 0 ? task1 : task2;
         SudokuBoard solvedBoard = firstSolvedIndex == 0 ? firstBoard : secondBoard;
+
+        if (finishedTask.IsFaulted)
+        {
+            throw finishedTask.Exception.GetBaseException();
+        }
 
         // Convert the solved board back to string.
         string solvedPuzzle = solvedBoard.ToString();
