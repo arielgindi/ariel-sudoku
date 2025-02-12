@@ -17,9 +17,6 @@ The human tactics are running as long as they have options.
 
 Human tactics (Heuristics) - 
 
-
-Human tactics (Heuristics) - 
-
 only two of them used
 Hidden singles - if a cell contain 1 possibilities place it
 Naked singles - if a digit is the only one is a certain unit (row,col,box) instantly place it!
