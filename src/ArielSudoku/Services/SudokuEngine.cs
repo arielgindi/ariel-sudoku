@@ -1,5 +1,4 @@
-﻿using ArielSudoku.CLI;
-using ArielSudoku.Exceptions;
+﻿using ArielSudoku.Exceptions;
 using ArielSudoku.Models;
 using ArielSudoku.Services;
 public static class SudokuEngine

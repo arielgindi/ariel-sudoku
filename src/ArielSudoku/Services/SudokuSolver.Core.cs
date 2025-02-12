@@ -1,5 +1,4 @@
-﻿using ArielSudoku.CLI;
-using ArielSudoku.Common;
+﻿using ArielSudoku.Common;
 using ArielSudoku.Exceptions;
 using ArielSudoku.Models;
 using System.Diagnostics;

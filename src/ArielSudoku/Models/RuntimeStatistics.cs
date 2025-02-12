@@ -1,4 +1,4 @@
-﻿namespace ArielSudoku.CLI;
+﻿namespace ArielSudoku.Models;
 
 public class RuntimeStatistics
 {

@@ -1,4 +1,4 @@
-using ArielSudoku.CLI;
+using ArielSudoku.Models;
 using System.Diagnostics;
 
 namespace ArielSudoku.IO;
@@ -86,20 +86,18 @@ public class SudokuFileHandler
     {
         _solvedPuzzles[puzzleIndex] = solvedPuzzle;
         _totalProcessingTimeMs += processingTimeMs;
-        // TODO: fix this
-        //_totalBacktrackingCalls += backtrackCalls;
+        _totalBacktrackingCalls += runtimeStats.GuessCount;
 
         if (processingTimeMs > MaxTimeMs)
         {
             MaxTimeMs = processingTimeMs;
             MaxTimePuzzleIndex = puzzleIndex + 1;
         }
-        // TODO: fix this
-        //if (backtrackCalls > MaxBacktrackCalls)
-        //{
-        //    MaxBacktrackCalls = backtrackCalls;
-        //    MaxBacktrackCallsIndex = puzzleIndex + 1;
-        //}
+        if (runtimeStats.GuessCount > MaxBacktrackCalls)
+        {
+            MaxBacktrackCalls = runtimeStats.GuessCount;
+            MaxBacktrackCallsIndex = puzzleIndex + 1;
+        }
     }
 
     /// <summary>

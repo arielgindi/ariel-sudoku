@@ -1,6 +1,7 @@
 ﻿using ArielSudoku.Common;
 using ArielSudoku.Exceptions;
 using ArielSudoku.IO;
+using ArielSudoku.Models;
 using System.Diagnostics;
 using System.Text;
 

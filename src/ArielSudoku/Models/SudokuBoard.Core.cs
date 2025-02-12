@@ -1,6 +1,5 @@
 ﻿namespace ArielSudoku.Models;
 
-using ArielSudoku.CLI;
 using ArielSudoku.Common;
 using ArielSudoku.Exceptions;
 
@@ -32,10 +31,6 @@ public sealed partial class SudokuBoard
         InitializeBoardFromString(puzzleString);
         SetUsageTracking();
     }
-
-
-
-
 
     private void InitializeBoardFromString(string input)
     {
