@@ -13,7 +13,6 @@ public sealed partial class SudokuBoard
     private int[] _rowMask = null!;
     private int[] _colMask = null!;
     private int[] _boxMask = null!;
-
     // Each cell has a bitmask of valid digits (bits 1..BoardSize).
     private int[] _cellMasks = null!;
 
@@ -23,7 +22,7 @@ public sealed partial class SudokuBoard
 
     // Track indexes of cells that are currently empty
     private List<int> _emptyCells = [];
-
+    
     private void SetUsageTracking()
     {
         _rowMask = new int[_constants.BoardSize];
@@ -117,13 +116,17 @@ public sealed partial class SudokuBoard
     {
         int bestCellIndex = -1;
         int bestCount = _constants.BoardSize + 1;
-        int bestNeighborSum = int.MaxValue;
 
-        for (int i = 0; i < _emptyCells.Count; i++)
+        if (_findNextCellSmartly)
         {
-            int cellIndex = _emptyCells[i];
-            if (this[cellIndex] == 0)
+            int bestNeighborSum = int.MaxValue;
+
+            for (int i = 0; i < _emptyCells.Count; i++)
             {
+                int cellIndex = _emptyCells[i];
+                if (this[cellIndex] != 0)
+                    continue;
+
                 int count = _possPerCell[cellIndex];
                 if (count < bestCount)
                 {
@@ -142,6 +145,25 @@ public sealed partial class SudokuBoard
                         bestNeighborSum = neighborSum;
                         bestCellIndex = cellIndex;
                     }
+                }
+            }
+
+            return bestCellIndex;
+        }
+
+
+
+        for (int i = 0; i < _emptyCells.Count; i++)
+        {
+            int cellIndex = _emptyCells[i];
+            if (this[cellIndex] == 0)
+            {
+                int count = _possPerCell[cellIndex];
+                if (count < bestCount)
+                {
+                    bestCount = count;
+                    bestCellIndex = cellIndex;
+                    if (bestCount == 1) break;
                 }
             }
         }

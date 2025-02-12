@@ -107,7 +107,7 @@ public static class SudokuHelpers
         {
             // If there are any conflicts, in the existing solvedPuzzle, SudokuBoard will automaticly throw "SudokuInvalidBoardException" 
             // For example if cell index 5 and 6 both contain the number 9, SudokuInvalidBoardException will be thrown
-            SudokuBoard board = new(solvedPuzzle);
+            SudokuEngine.SolveSudoku(solvedPuzzle);
         }
         catch (SudokuInvalidBoardException)
         {

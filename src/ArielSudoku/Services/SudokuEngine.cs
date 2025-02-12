@@ -20,16 +20,34 @@ public static class SudokuEngine
     /// </exception>
     public static (string solvedPuzzle, RuntimeStatistics runtimeStats) SolveSudoku(string puzzleString)
     {
-        // 1. Parse into a SudokuBoard.
-        SudokuBoard board = new(puzzleString);
+        SudokuBoard firstBoard = new(puzzleString, true);
+        SudokuSolver firstSolver = new(firstBoard);
 
-        // 2. Solve the board.
-        SudokuSolver solver = new(board);
-        solver.Solve();
+        SudokuBoard secondBoard = new(puzzleString, false);
+        SudokuSolver secondSolver = new(secondBoard);
 
-        // 3. Convert the solved board back to string.
-        string solvedPuzzle = board.ToString();
-        RuntimeStatistics runtimeStats = board.runtimeStats;
+        Task task1 = Task.Run(firstSolver.Solve);
+        Task task2 = Task.Run(secondSolver.Solve);
+
+
+        int firstSolvedIndex = Task.WaitAny(task1, task2);
+
+        if (task1.IsFaulted)
+        {
+            throw task1.Exception.GetBaseException();
+        }
+
+        if (task2.IsFaulted)
+        {
+            throw task2.Exception.GetBaseException();
+        }
+
+
+        SudokuBoard solvedBoard = firstSolvedIndex == 0 ? firstBoard : secondBoard;
+
+        // Convert the solved board back to string.
+        string solvedPuzzle = solvedBoard.ToString();
+        RuntimeStatistics runtimeStats = solvedBoard.runtimeStats;
         return (solvedPuzzle, runtimeStats);
     }
 }

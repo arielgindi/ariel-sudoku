@@ -11,8 +11,10 @@ public sealed partial class SudokuBoard
     private readonly int[] _cells;
     public readonly Constants _constants ;
     public readonly RuntimeStatistics  runtimeStats;
-    public SudokuBoard(string puzzleString)
+    private readonly bool _findNextCellSmartly;
+    public SudokuBoard(string puzzleString, bool findNextCellSmartly)
     {
+        _findNextCellSmartly = findNextCellSmartly;
         int length = puzzleString.Length;
         int boxSize = SudokuHelpers.CalculateBoxSize(length);
         runtimeStats = new RuntimeStatistics();
